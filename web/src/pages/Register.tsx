@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { Field, withTypes } from "react-final-form";
-import { useLocation, Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 import {
   Avatar,
@@ -16,27 +16,12 @@ import { createMuiTheme, makeStyles } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 // import LockIcon from "@material-ui/icons/Lock";
 import CreateIcon from "@material-ui/icons/Create";
-import { Notification, useLogin, useNotify } from "react-admin";
+import { Notification, useNotify } from "react-admin";
 
 import { lightTheme } from "./themes";
 
-import { gql, useMutation } from "@apollo/client";
-
-const REGISTER_MUTATION = gql`
-  mutation Login($usernameOrEmail: String!, $password: String!) {
-    login(usernameOrEmail: $usernameOrEmail, password: $password) {
-      errors {
-        field
-        message
-      }
-      user {
-        id
-        name
-        email
-      }
-    }
-  }
-`;
+import { errorMonitor } from "events";
+import { useRegisterMutation } from "../generated/graphql";
 
 const useStyles = makeStyles((theme) => ({
   main: {
@@ -105,24 +90,52 @@ const Register = () => {
   const classes = useStyles();
   const notify = useNotify();
   // const login = useLogin();
-  const location = useLocation<{ nextPathname: string } | null>();
-  // const [loginMutation] = useMutation(LOGIN_MUTATION);
-  const handleSubmit = (auth: FormValues) => {
+  // const location = useLocation<{ nextPathname: string } | null>();
+  const history = useHistory();
+  const [registerMutation] = useRegisterMutation();
+  const handleSubmit = async (auth: FormValues) => {
     setLoading(true);
-    // login(
-    //   { ...auth, loginMutation },
-    //   location.state ? location.state.nextPathname : "/"
-    // ).catch((error) => {
-    //   setLoading(false);
-    //   notify(
-    //     typeof error === "string"
-    //       ? error
-    //       : typeof error === "undefined" || !error.message
-    //       ? "ra.auth.sign_in_error"
-    //       : error.message,
-    //     "warning"
-    //   );
-    // });
+    try {
+      const response = await registerMutation({
+        variables: {
+          options: {
+            email: auth.email,
+            password: auth.password,
+            name: auth.username,
+          },
+        },
+        //   update: (cache, { data }) => {
+        //     cache.writeQuery<MeQuery>({
+        //       query: MeDocument,
+        //       data: {
+        //         __typename: "Query",
+        //         me: data?.login.user,
+        //       },
+        //     });
+        //     cache.evict({ fieldName: "posts:{}" });
+        //   },
+      });
+      console.log(response);
+      if (response.data?.register.errors) {
+        const error = response.data?.register.errors[0];
+        notify(
+          typeof error === "string"
+            ? error
+            : typeof error === "undefined" || !error.message
+            ? "ra.auth.sign_in_error"
+            : `${error.field} field: ${error.message}`,
+          "warning"
+        );
+      } else if (response.data?.register.user) {
+        localStorage.setItem("username", response.data?.register.user.name);
+        notify("Registered ! Please confirm your email ! ");
+        history.push("/login");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
+    setLoading(false);
   };
 
   const validate = (values: FormValues) => {
@@ -195,6 +208,20 @@ const Register = () => {
                 >
                   {loading && <CircularProgress size={25} thickness={2} />}
                   Sign up
+                </Button>
+              </CardActions>
+              <CardActions className={classes.actions}>
+                <Button
+                  variant="contained"
+                  type="button"
+                  color="secondary"
+                  disabled={loading}
+                  fullWidth
+                  onClick={() => {
+                    history.push("/login");
+                  }}
+                >
+                  Login
                 </Button>
               </CardActions>
             </Card>

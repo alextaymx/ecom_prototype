@@ -34,6 +34,7 @@ const validateRegister_1 = require("../utils/validateRegister");
 const sendEmail_1 = require("../utils/sendEmail");
 const uuid_1 = require("uuid");
 const typeorm_1 = require("typeorm");
+const ListMetadata_1 = require("../entities/ListMetadata");
 let FieldError = class FieldError {
 };
 __decorate([
@@ -213,6 +214,32 @@ let UserResolver = class UserResolver {
             resolve(true);
         }));
     }
+    allUsers(page, perPage, sortField, sortOrder, filter) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const a = yield User_1.User.find();
+            console.log(a, "aaaaa");
+            return User_1.User.find();
+        });
+    }
+    User(id) {
+        return User_1.User.findOne(id);
+    }
+    _allUsersMeta(page, perPage, sortField, sortOrder, filter) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const count = yield User_1.User.count();
+            console.log("count", count);
+            return { count };
+        });
+    }
+    updateUser(id, status, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = {
+                status,
+            };
+            yield User_1.User.update(id, user);
+            return User_1.User.findOne(id);
+        });
+    }
 };
 __decorate([
     type_graphql_1.FieldResolver(() => String),
@@ -269,6 +296,44 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "logout", null);
+__decorate([
+    type_graphql_1.Query(() => [User_1.User]),
+    __param(0, type_graphql_1.Arg("page", () => type_graphql_1.Int, { nullable: true })),
+    __param(1, type_graphql_1.Arg("perPage", () => type_graphql_1.Int, { nullable: true })),
+    __param(2, type_graphql_1.Arg("sortField", () => String, { nullable: true })),
+    __param(3, type_graphql_1.Arg("sortOrder", () => String, { nullable: true })),
+    __param(4, type_graphql_1.Arg("filter", () => UsernamePasswordInput_1.UserFilter, { nullable: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, String, String, UsernamePasswordInput_1.UserFilter]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "allUsers", null);
+__decorate([
+    type_graphql_1.Query(() => User_1.User, { nullable: true }),
+    __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "User", null);
+__decorate([
+    type_graphql_1.Query(() => ListMetadata_1.ListMetadata),
+    __param(0, type_graphql_1.Arg("page", () => type_graphql_1.Int, { nullable: true })),
+    __param(1, type_graphql_1.Arg("perPage", () => type_graphql_1.Int, { nullable: true })),
+    __param(2, type_graphql_1.Arg("sortField", () => String, { nullable: true })),
+    __param(3, type_graphql_1.Arg("sortOrder", () => String, { nullable: true })),
+    __param(4, type_graphql_1.Arg("filter", () => UsernamePasswordInput_1.UserFilter, { nullable: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, String, String, UsernamePasswordInput_1.UserFilter]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "_allUsersMeta", null);
+__decorate([
+    type_graphql_1.Mutation(() => User_1.User),
+    __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg("status", () => String, { nullable: true })),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "updateUser", null);
 UserResolver = __decorate([
     type_graphql_1.Resolver(User_1.User)
 ], UserResolver);

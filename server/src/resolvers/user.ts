@@ -8,6 +8,7 @@ import {
   Query,
   FieldResolver,
   Root,
+  Int,
 } from "type-graphql";
 import { MyContext } from "../types";
 import { User } from "../entities/User";
@@ -18,11 +19,12 @@ import {
   Roles,
   UserStatus,
 } from "../constants";
-import { UsernamePasswordInput } from "./UsernamePasswordInput";
+import { UserFilter, UsernamePasswordInput } from "./UsernamePasswordInput";
 import { validateRegister } from "../utils/validateRegister";
 import { sendEmail } from "../utils/sendEmail";
 import { v4 } from "uuid";
 import { getConnection } from "typeorm";
+import { ListMetadata } from "../entities/ListMetadata";
 
 @ObjectType()
 class FieldError {
@@ -159,7 +161,6 @@ export class UserResolver {
     if (errors) {
       return { errors };
     }
-
     const hashedPassword = await argon2.hash(options.password);
     let user;
     try {
@@ -256,5 +257,52 @@ export class UserResolver {
         resolve(true);
       })
     );
+  }
+
+  @Query(() => [User])
+  async allUsers(
+    @Arg("page", () => Int, { nullable: true }) page: number,
+    @Arg("perPage", () => Int, { nullable: true }) perPage: number,
+    @Arg("sortField", () => String, { nullable: true }) sortField: string,
+    @Arg("sortOrder", () => String, { nullable: true }) sortOrder: string,
+    @Arg("filter", () => UserFilter, { nullable: true }) filter: UserFilter
+  ): Promise<User[]> {
+    const a = await User.find();
+    console.log(a, "aaaaa");
+    return User.find();
+  }
+
+  @Query(() => User, { nullable: true })
+  User(@Arg("id", () => Int) id: number): Promise<User | undefined> {
+    return User.findOne(id);
+  }
+
+  @Query(() => ListMetadata)
+  async _allUsersMeta(
+    @Arg("page", () => Int, { nullable: true }) page: number,
+    @Arg("perPage", () => Int, { nullable: true }) perPage: number,
+    @Arg("sortField", () => String, { nullable: true }) sortField: string,
+    @Arg("sortOrder", () => String, { nullable: true }) sortOrder: string,
+    @Arg("filter", () => UserFilter, { nullable: true }) filter: UserFilter
+  ): Promise<ListMetadata> {
+    const count = await User.count();
+    console.log("count", count);
+    return { count };
+  }
+
+  @Mutation(() => User)
+  async updateUser(
+    @Arg("id", () => Int) id: number,
+    // @Arg("name", () => String, { nullable: true }) name: string,
+    // @Arg("email", () => String, { nullable: true }) email: string,
+    @Arg("status", () => String, { nullable: true }) status: string,
+    // @Arg("role", () => String, { nullable: true }) role: string,
+    @Ctx() { req }: MyContext
+  ): Promise<User | undefined> {
+    const user = {
+      status,
+    };
+    await User.update(id, user);
+    return User.findOne(id);
   }
 }

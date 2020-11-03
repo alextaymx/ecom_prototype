@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UsernamePasswordInput = void 0;
+exports.UserFilter = exports.UsernamePasswordInput = void 0;
 const type_graphql_1 = require("type-graphql");
 let UsernamePasswordInput = class UsernamePasswordInput {
 };
@@ -29,4 +29,26 @@ UsernamePasswordInput = __decorate([
     type_graphql_1.InputType()
 ], UsernamePasswordInput);
 exports.UsernamePasswordInput = UsernamePasswordInput;
+let UserFilter = class UserFilter {
+};
+__decorate([
+    type_graphql_1.Field({ nullable: true }),
+    __metadata("design:type", String)
+], UserFilter.prototype, "id", void 0);
+__decorate([
+    type_graphql_1.Field({ nullable: true }),
+    __metadata("design:type", String)
+], UserFilter.prototype, "name", void 0);
+__decorate([
+    type_graphql_1.Field({ nullable: true }),
+    __metadata("design:type", String)
+], UserFilter.prototype, "password", void 0);
+__decorate([
+    type_graphql_1.Field({ nullable: true }),
+    __metadata("design:type", Boolean)
+], UserFilter.prototype, "is_published", void 0);
+UserFilter = __decorate([
+    type_graphql_1.InputType()
+], UserFilter);
+exports.UserFilter = UserFilter;
 //# sourceMappingURL=UsernamePasswordInput.js.map

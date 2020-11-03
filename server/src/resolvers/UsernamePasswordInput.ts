@@ -8,3 +8,15 @@ export class UsernamePasswordInput {
   @Field()
   password: string;
 }
+
+@InputType()
+export class UserFilter {
+  @Field({ nullable: true })
+  id: string;
+  @Field({ nullable: true })
+  name: string;
+  @Field({ nullable: true })
+  password: string;
+  @Field({ nullable: true })
+  is_published: boolean;
+}

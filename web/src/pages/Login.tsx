@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { Field, withTypes } from "react-final-form";
-import { Link, useLocation, useHistory } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 
 import {
   Avatar,
@@ -19,23 +19,24 @@ import { Notification, useLogin, useNotify } from "react-admin";
 
 import { lightTheme } from "./themes";
 
-import { gql, useMutation } from "@apollo/client";
+// import { gql } from "@apollo/client";
+import { useLoginMutation } from "../generated/graphql";
 
-const LOGIN_MUTATION = gql`
-  mutation Login($usernameOrEmail: String!, $password: String!) {
-    login(usernameOrEmail: $usernameOrEmail, password: $password) {
-      errors {
-        field
-        message
-      }
-      user {
-        id
-        name
-        email
-      }
-    }
-  }
-`;
+// const LOGIN_MUTATION = gql`
+//   mutation Login($usernameOrEmail: String!, $password: String!) {
+//     login(usernameOrEmail: $usernameOrEmail, password: $password) {
+//       errors {
+//         field
+//         message
+//       }
+//       user {
+//         id
+//         name
+//         email
+//       }
+//     }
+//   }
+// `;
 
 const useStyles = makeStyles((theme) => ({
   main: {
@@ -105,7 +106,8 @@ const Login = () => {
   const login = useLogin();
   const history = useHistory();
   const location = useLocation<{ nextPathname: string } | null>();
-  const [loginMutation] = useMutation(LOGIN_MUTATION);
+  // const [loginMutation] = useMutation(LOGIN_MUTATION);
+  const [loginMutation] = useLoginMutation();
   const handleSubmit = (auth: FormValues) => {
     setLoading(true);
     login(

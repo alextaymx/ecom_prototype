@@ -38,9 +38,6 @@ export class User extends BaseEntity {
   @Column("text", { array: true })
   permissions!: string[];
 
-  // @OneToMany(() => Post, (post) => post.creator)
-  // posts: Post[];
-
   @Field(() => String)
   @CreateDateColumn()
   createdAt!: Date;
