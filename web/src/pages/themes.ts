@@ -79,7 +79,7 @@ export const lightTheme = {
             root: {
                 backgroundColor: 'rgba(0, 0, 0, 0.04)',
                 '&$disabled': {
-                    backgrundColor: 'rgba(0, 0, 0, 0.04)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
                 },
             },
         },

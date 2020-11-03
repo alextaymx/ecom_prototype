@@ -1,4 +1,5 @@
 import React from "react";
+import "./App.css";
 import { Admin, Resource } from "react-admin";
 // import buildGraphQLProvider from "ra-data-graphql-simple";
 // import { createNetworkInterface } from "react-apollo";
@@ -8,6 +9,7 @@ import { Admin, Resource } from "react-admin";
 import buildGraphQLProvider from "ra-data-graphql-simple";
 import authProvider from "./authProvider";
 import Login from "./pages/Login";
+import customRoutes from "./routes";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 // import buildQuery from './buildQuery'; // see Specify your queries and mutations section below
 
@@ -26,6 +28,7 @@ function App() {
         })}
         authProvider={authProvider}
         loginPage={Login}
+        customRoutes={customRoutes}
       >
         <Resource name="posts" />
       </Admin>

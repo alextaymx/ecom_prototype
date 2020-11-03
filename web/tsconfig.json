@@ -18,12 +18,14 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react",
-    "strict": true
+    "checkJs": true,
+    "strict": false
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "src"
+    "src",
+    "src/**/*.ts",
   ],
   "exclude": [
     "node_modules"

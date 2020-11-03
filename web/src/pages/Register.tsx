@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { Field, withTypes } from "react-final-form";
-import { Link, useLocation, useHistory } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 
 import {
   Avatar,
@@ -14,14 +14,15 @@ import {
 } from "@material-ui/core";
 import { createMuiTheme, makeStyles } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
-import LockIcon from "@material-ui/icons/Lock";
+// import LockIcon from "@material-ui/icons/Lock";
+import CreateIcon from "@material-ui/icons/Create";
 import { Notification, useLogin, useNotify } from "react-admin";
 
 import { lightTheme } from "./themes";
 
 import { gql, useMutation } from "@apollo/client";
 
-const LOGIN_MUTATION = gql`
+const REGISTER_MUTATION = gql`
   mutation Login($usernameOrEmail: String!, $password: String!) {
     login(usernameOrEmail: $usernameOrEmail, password: $password) {
       errors {
@@ -94,34 +95,34 @@ const renderInput = ({
 interface FormValues {
   username?: string;
   password?: string;
+  email?: string;
 }
 
 const { Form } = withTypes<FormValues>();
 
-const Login = () => {
+const Register = () => {
   const [loading, setLoading] = useState(false);
   const classes = useStyles();
   const notify = useNotify();
-  const login = useLogin();
-  const history = useHistory();
+  // const login = useLogin();
   const location = useLocation<{ nextPathname: string } | null>();
-  const [loginMutation] = useMutation(LOGIN_MUTATION);
+  // const [loginMutation] = useMutation(LOGIN_MUTATION);
   const handleSubmit = (auth: FormValues) => {
     setLoading(true);
-    login(
-      { ...auth, loginMutation },
-      location.state ? location.state.nextPathname : "/"
-    ).catch((error) => {
-      setLoading(false);
-      notify(
-        typeof error === "string"
-          ? error
-          : typeof error === "undefined" || !error.message
-          ? "ra.auth.sign_in_error"
-          : error.message,
-        "warning"
-      );
-    });
+    // login(
+    //   { ...auth, loginMutation },
+    //   location.state ? location.state.nextPathname : "/"
+    // ).catch((error) => {
+    //   setLoading(false);
+    //   notify(
+    //     typeof error === "string"
+    //       ? error
+    //       : typeof error === "undefined" || !error.message
+    //       ? "ra.auth.sign_in_error"
+    //       : error.message,
+    //     "warning"
+    //   );
+    // });
   };
 
   const validate = (values: FormValues) => {
@@ -131,6 +132,9 @@ const Login = () => {
     }
     if (!values.password) {
       errors.password = "Required";
+    }
+    if (!values.email) {
+      errors.email = "Required";
     }
     return errors;
   };
@@ -145,10 +149,10 @@ const Login = () => {
             <Card className={classes.card}>
               <div className={classes.avatar}>
                 <Avatar className={classes.icon}>
-                  <LockIcon />
+                  <CreateIcon />
                 </Avatar>
               </div>
-              <div className={classes.hint}>Hint: alex / alex</div>
+              <div className={classes.hint}>Registration Form</div>
               <div className={classes.form}>
                 <div className={classes.input}>
                   <Field
@@ -157,6 +161,16 @@ const Login = () => {
                     // @ts-ignore
                     component={renderInput}
                     label="Username"
+                    disabled={loading}
+                  />
+                </div>
+                <div className={classes.input}>
+                  <Field
+                    autoFocus
+                    name="email"
+                    // @ts-ignore
+                    component={renderInput}
+                    label="Email"
                     disabled={loading}
                   />
                 </div>
@@ -180,21 +194,7 @@ const Login = () => {
                   fullWidth
                 >
                   {loading && <CircularProgress size={25} thickness={2} />}
-                  Sign in
-                </Button>
-              </CardActions>
-              <CardActions className={classes.actions}>
-                <Button
-                  variant="contained"
-                  type="button"
-                  color="secondary"
-                  disabled={loading}
-                  fullWidth
-                  onClick={() => {
-                    history.push("/register");
-                  }}
-                >
-                  Register
+                  Sign up
                 </Button>
               </CardActions>
             </Card>
@@ -206,7 +206,7 @@ const Login = () => {
   );
 };
 
-Login.propTypes = {
+Register.propTypes = {
   authProvider: PropTypes.func,
   previousRoute: PropTypes.string,
 };
@@ -214,10 +214,10 @@ Login.propTypes = {
 // We need to put the ThemeProvider decoration in another component
 // Because otherwise the useStyles() hook used in Login won't get
 // the right theme
-const LoginWithTheme = (props: any) => (
+const RegisterWithTheme = (props: any) => (
   <ThemeProvider theme={createMuiTheme(lightTheme)}>
-    <Login {...props} />
+    <Register {...props} />
   </ThemeProvider>
 );
 
-export default LoginWithTheme;
+export default RegisterWithTheme;
