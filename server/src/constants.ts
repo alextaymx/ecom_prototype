@@ -26,7 +26,7 @@ export const Roles = {
       Permissions.Delete_User,
       Permissions.Update_Order,
       Permissions.Create_Order,
-      Permissions.Update_Order,
+      Permissions.Cancel_Order,
     ],
   },
   User: {
@@ -37,7 +37,7 @@ export const Roles = {
       Permissions.Delete_Product,
       Permissions.Update_Order,
       Permissions.Create_Order,
-      Permissions.Update_Order,
+      Permissions.Cancel_Order,
     ],
   },
 };

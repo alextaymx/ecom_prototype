@@ -9,6 +9,7 @@ import {
   FieldResolver,
   Root,
   Int,
+  UseMiddleware,
 } from "type-graphql";
 import { MyContext } from "../types";
 import { User } from "../entities/User";
@@ -25,6 +26,8 @@ import { sendEmail } from "../utils/sendEmail";
 import { v4 } from "uuid";
 import { getConnection } from "typeorm";
 import { ListMetadata } from "../entities/ListMetadata";
+import { isAuth } from "../middleware/isAuth";
+import { createToken } from "../utils/createToken";
 
 @ObjectType()
 class FieldError {
@@ -41,6 +44,9 @@ class UserResponse {
 
   @Field(() => User, { nullable: true })
   user?: User;
+
+  @Field(() => String, { nullable: true })
+  token?: string;
 }
 
 @Resolver(User)
@@ -209,7 +215,7 @@ export class UserResolver {
     @Arg("usernameOrEmail") usernameOrEmail: string,
     @Arg("password") password: string,
     @Ctx() { req }: MyContext
-  ): Promise<UserResponse> {
+  ): Promise<any> {
     const user = await User.findOne(
       usernameOrEmail.includes("@")
         ? { where: { email: usernameOrEmail } }
@@ -238,9 +244,11 @@ export class UserResolver {
     }
 
     req.session.userId = user.id;
-
+    const token = createToken(user.id, password);
+    console.log({ user });
     return {
       user,
+      token,
     };
   }
 
@@ -261,6 +269,7 @@ export class UserResolver {
   }
 
   @Query(() => [User])
+  @UseMiddleware(isAuth)
   async allUsers(): // @Arg("page", () => Int, { nullable: true }) page: number,
   // @Arg("perPage", () => Int, { nullable: true }) perPage: number,
   // @Arg("sortField", () => String, { nullable: true }) sortField: string,
@@ -282,6 +291,7 @@ export class UserResolver {
   }
 
   @Query(() => ListMetadata)
+  @UseMiddleware(isAuth)
   async _allUsersMeta(): // @Arg("page", () => Int, { nullable: true }) page: number,
   // @Arg("perPage", () => Int, { nullable: true }) perPage: number,
   // @Arg("sortField", () => String, { nullable: true }) sortField: string,
@@ -294,6 +304,7 @@ export class UserResolver {
   }
 
   @Mutation(() => UserResponse)
+  @UseMiddleware(isAuth)
   async createUser(
     @Arg("email", () => String) email: string,
     @Arg("name", () => String) name: string,
@@ -348,25 +359,31 @@ export class UserResolver {
   }
 
   @Mutation(() => User)
+  @UseMiddleware(isAuth)
   async updateUser(
     @Arg("id", () => Int) id: number,
     @Arg("name", () => String, { nullable: true }) name: string,
     @Arg("email", () => String, { nullable: true }) email: string,
     @Arg("status", () => String, { nullable: true }) status: string,
-    @Arg("role", () => String, { nullable: true }) role: string
+    @Arg("role", () => String, { nullable: true }) role: string,
+    @Arg("permissions", () => [String], { nullable: true })
+    permissions: [string]
     // @Ctx() { req }: MyContext
   ): Promise<User | undefined> {
+    console.log("alex", permissions);
     const user = {
       ...(name && { name }),
       ...(status && { status }),
       ...(email && { email }),
       ...(role && { role }),
+      ...(permissions && { permissions }),
     };
     await User.update(id, user);
     return User.findOne(id);
   }
 
   @Mutation(() => User)
+  @UseMiddleware(isAuth)
   async deleteUser(
     @Arg("id", () => Int) id: number
   ): Promise<User | undefined> {

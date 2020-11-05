@@ -16,6 +16,7 @@ export type Query = {
   me?: Maybe<User>;
   allUsers: Array<User>;
   User?: Maybe<User>;
+  _allUsersMeta: ListMetadata;
 };
 
 
@@ -35,6 +36,11 @@ export type User = {
   updatedAt: Scalars['String'];
 };
 
+export type ListMetadata = {
+  __typename?: 'ListMetadata';
+  count: Scalars['Float'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   changePassword: UserResponse;
@@ -42,6 +48,9 @@ export type Mutation = {
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
+  createUser: UserResponse;
+  updateUser: User;
+  deleteUser: User;
 };
 
 
@@ -66,10 +75,32 @@ export type MutationLoginArgs = {
   usernameOrEmail: Scalars['String'];
 };
 
+
+export type MutationCreateUserArgs = {
+  password: Scalars['String'];
+  name: Scalars['String'];
+  email: Scalars['String'];
+};
+
+
+export type MutationUpdateUserArgs = {
+  role?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  id: Scalars['Int'];
+};
+
+
+export type MutationDeleteUserArgs = {
+  id: Scalars['Int'];
+};
+
 export type UserResponse = {
   __typename?: 'UserResponse';
   errors?: Maybe<Array<FieldError>>;
   user?: Maybe<User>;
+  token?: Maybe<Scalars['String']>;
 };
 
 export type FieldError = {
@@ -94,6 +125,7 @@ export type LoginMutation = (
   { __typename?: 'Mutation' }
   & { login: (
     { __typename?: 'UserResponse' }
+    & Pick<UserResponse, 'token'>
     & { errors?: Maybe<Array<(
       { __typename?: 'FieldError' }
       & Pick<FieldError, 'field' | 'message'>
@@ -136,6 +168,7 @@ export const LoginDocument = gql`
       name
       email
     }
+    token
   }
 }
     `;

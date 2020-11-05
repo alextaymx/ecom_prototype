@@ -3,8 +3,9 @@ import { FC } from "react";
 import PropTypes from "prop-types";
 import Button from "@material-ui/core/Button";
 import ThumbUp from "@material-ui/icons/ThumbUp";
-import { useTranslate, useUpdate, useNotify, useRedirect } from "react-admin";
+import { useUpdate, useNotify, useRedirect } from "react-admin";
 import { User } from "./../types";
+import CheckIcon from "@material-ui/icons/Check";
 
 /**
  * This custom button demonstrate using useUpdate to update data
@@ -37,7 +38,7 @@ const AcceptButton: FC<{ record: User }> = ({ record }) => {
       onClick={approve}
       disabled={loading}
     >
-      <ThumbUp
+      <CheckIcon
         color="primary"
         style={{ paddingRight: "0.5em", color: "green" }}
       />

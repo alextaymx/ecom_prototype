@@ -71,50 +71,49 @@ const ReviewEditToolbar: FC<ToolbarProps<User>> = ({
   if (!record) return null;
   return (
     <MuiToolbar className={classes.root}>
-      {record.status === "2" ? (
+      {record.status === "2" && (
         <Fragment>
           <AcceptButton record={record} />
           <RejectButton record={record} />
         </Fragment>
-      ) : (
-        <Fragment>
-          {record && record.status !== "3" ? (
-            <SaveButton
-              handleSubmitWithRedirect={handleSubmitWithRedirect}
-              invalid={invalid}
-              saving={saving}
-              redirect="list"
-              submitOnEnter={true}
-            />
-          ) : (
-            <Button
-              variant="outlined"
-              color="primary"
-              size="small"
-              onClick={activateUser}
-              disabled={activateLoading}
-            >
-              Restore User
-            </Button>
-          )}
+      )}
+      <Fragment>
+        {record && record.status !== "3" ? (
+          <SaveButton
+            handleSubmitWithRedirect={handleSubmitWithRedirect}
+            invalid={invalid}
+            saving={saving}
+            redirect="list"
+            submitOnEnter={true}
+          />
+        ) : (
+          <Button
+            variant="outlined"
+            color="primary"
+            size="small"
+            onClick={activateUser}
+            disabled={activateLoading}
+          >
+            Restore User
+          </Button>
+        )}
 
-          {record && record.status === "1" && (
-            <Button
-              style={{ color: "#f44336" }}
-              variant="outlined"
-              onClick={deactivateUser}
-              disabled={deactivateLoading}
-            >
-              Deactivate User
-            </Button>
-          )}
-          {/* <DeleteButton
+        {record && record.status === "1" && (
+          <Button
+            style={{ color: "#f44336" }}
+            variant="outlined"
+            onClick={deactivateUser}
+            disabled={deactivateLoading}
+          >
+            Deactivate User
+          </Button>
+        )}
+        {/* <DeleteButton
             basePath={basePath}
             record={record}
             resource={resource}
           /> */}
-        </Fragment>
-      )}
+      </Fragment>
     </MuiToolbar>
   );
 };

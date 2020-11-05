@@ -35,6 +35,8 @@ const sendEmail_1 = require("../utils/sendEmail");
 const uuid_1 = require("uuid");
 const typeorm_1 = require("typeorm");
 const ListMetadata_1 = require("../entities/ListMetadata");
+const isAuth_1 = require("../middleware/isAuth");
+const createToken_1 = require("../utils/createToken");
 let FieldError = class FieldError {
 };
 __decorate([
@@ -58,6 +60,10 @@ __decorate([
     type_graphql_1.Field(() => User_1.User, { nullable: true }),
     __metadata("design:type", User_1.User)
 ], UserResponse.prototype, "user", void 0);
+__decorate([
+    type_graphql_1.Field(() => String, { nullable: true }),
+    __metadata("design:type", String)
+], UserResponse.prototype, "token", void 0);
 UserResponse = __decorate([
     type_graphql_1.ObjectType()
 ], UserResponse);
@@ -198,8 +204,11 @@ let UserResolver = class UserResolver {
                 };
             }
             req.session.userId = user.id;
+            const token = createToken_1.createToken(user.id, password);
+            console.log({ user });
             return {
                 user,
+                token,
             };
         });
     }
@@ -272,9 +281,10 @@ let UserResolver = class UserResolver {
             return { user };
         });
     }
-    updateUser(id, name, email, status, role) {
+    updateUser(id, name, email, status, role, permissions) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = Object.assign(Object.assign(Object.assign(Object.assign({}, (name && { name })), (status && { status })), (email && { email })), (role && { role }));
+            console.log("alex", permissions);
+            const user = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, (name && { name })), (status && { status })), (email && { email })), (role && { role })), (permissions && { permissions }));
             yield User_1.User.update(id, user);
             return User_1.User.findOne(id);
         });
@@ -345,6 +355,7 @@ __decorate([
 ], UserResolver.prototype, "logout", null);
 __decorate([
     type_graphql_1.Query(() => [User_1.User]),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
@@ -358,12 +369,14 @@ __decorate([
 ], UserResolver.prototype, "User", null);
 __decorate([
     type_graphql_1.Query(() => ListMetadata_1.ListMetadata),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "_allUsersMeta", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
     __param(0, type_graphql_1.Arg("email", () => String)),
     __param(1, type_graphql_1.Arg("name", () => String)),
     __param(2, type_graphql_1.Arg("password", () => String)),
@@ -374,17 +387,20 @@ __decorate([
 ], UserResolver.prototype, "createUser", null);
 __decorate([
     type_graphql_1.Mutation(() => User_1.User),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
     __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
     __param(1, type_graphql_1.Arg("name", () => String, { nullable: true })),
     __param(2, type_graphql_1.Arg("email", () => String, { nullable: true })),
     __param(3, type_graphql_1.Arg("status", () => String, { nullable: true })),
     __param(4, type_graphql_1.Arg("role", () => String, { nullable: true })),
+    __param(5, type_graphql_1.Arg("permissions", () => [String], { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String, String, String, String]),
+    __metadata("design:paramtypes", [Number, String, String, String, String, Array]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "updateUser", null);
 __decorate([
     type_graphql_1.Mutation(() => User_1.User),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
     __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),

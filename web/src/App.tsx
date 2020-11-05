@@ -11,13 +11,58 @@ import buildApolloClient from "ra-data-graphql-simple";
 import authProvider from "./authProvider";
 import Login from "./pages/Login";
 import customRoutes from "./routes";
-import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
-
+import {
+  ApolloClient,
+  ApolloProvider,
+  InMemoryCache,
+  createHttpLink,
+} from "@apollo/client";
+import { onError } from "@apollo/client/link/error";
 import Users from "./pages/reviews";
-// import buildQuery from './buildQuery'; // see Specify your queries and mutations section below
+import { setContext } from "@apollo/client/link/context";
+const errorLink = onError(
+  ({ operation, response, graphQLErrors, networkError }) => {
+    console.log("resp", response);
+    // response.data = null;
+    // response.errors = null;
+    if (graphQLErrors) {
+      const responseError = response.errors.map((e) => {
+        switch (e.message) {
+          case "LOGIN_USER":
+            return { ...e, status: 401 };
+          default:
+            return e;
+        }
+      });
+      graphQLErrors.map(({ message, locations, path }) =>
+        console.log(
+          `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+        )
+      );
+      response.errors = responseError;
+    }
+    if (networkError) console.log(`[Network error]: ${networkError}`);
+  }
+);
+const httpLink = createHttpLink({
+  uri: "http://localhost:4000/graphql",
+});
+
+const authLink = setContext((_, { headers }) => {
+  // get the authentication token from local storage if it exists
+  const token = localStorage.getItem("auth_token");
+  // return the headers to the context so httpLink can read them
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? token : "",
+    },
+  };
+});
 
 const APOLLO_CLIENT = new ApolloClient({
-  uri: "http://localhost:4000/graphql",
+  // uri: "http://localhost:4000/graphql",
+  link: authLink.concat(httpLink),
   credentials: "include",
   cache: new InMemoryCache(),
 });
@@ -36,7 +81,10 @@ const getGqlResource = (resource: string) => {
 const myDataProvider = () =>
   buildApolloClient({
     clientOptions: {
-      uri: "http://localhost:4000/graphql",
+      link: authLink.concat(httpLink),
+      // uri: "http://localhost:4000/graphql",
+      credentials: "include",
+      cache: new InMemoryCache(),
     },
   }).then(
     (dataProvider: LegacyDataProvider) => (
@@ -50,8 +98,6 @@ const myDataProvider = () =>
 function App() {
   const [dataProvider, setDataProvider] = useState<DataProvider>();
   useEffect(() => {
-    let restoreFetch;
-
     const fetchDataProvider = async () => {
       const dataProviderInstance = await myDataProvider();
       setDataProvider(
@@ -61,8 +107,6 @@ function App() {
     };
 
     fetchDataProvider();
-
-    return restoreFetch;
   }, []);
 
   if (!dataProvider) {

@@ -27,7 +27,7 @@ exports.Roles = {
             exports.Permissions.Delete_User,
             exports.Permissions.Update_Order,
             exports.Permissions.Create_Order,
-            exports.Permissions.Update_Order,
+            exports.Permissions.Cancel_Order,
         ],
     },
     User: {
@@ -38,7 +38,7 @@ exports.Roles = {
             exports.Permissions.Delete_Product,
             exports.Permissions.Update_Order,
             exports.Permissions.Create_Order,
-            exports.Permissions.Update_Order,
+            exports.Permissions.Cancel_Order,
         ],
     },
 };

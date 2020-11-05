@@ -7,7 +7,8 @@ import {
   SimpleForm,
   DateField,
   EditProps,
-  TextField,
+  SelectInput,
+  SelectArrayInput,
 } from "react-admin";
 import {
   IconButton,
@@ -23,6 +24,7 @@ import CloseIcon from "@material-ui/icons/Close";
 // import CustomerReferenceField from '../visitors/CustomerReferenceField';
 import ReviewEditToolbar from "./ReviewEditToolbar";
 import { User } from "../types";
+import { PermissionMap } from "../../constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -59,7 +61,13 @@ const ReviewEdit: FC<Props> = ({ onCancel, ...props }) => {
   if (!controllerProps.record) {
     return null;
   }
-  console.log(controllerProps);
+  console.log(
+    Object.keys(PermissionMap).map((key) => ({
+      id: parseInt(key) + 20,
+      permissionKey: key,
+      name: PermissionMap[key],
+    }))
+  );
   return (
     <div className={classes.root}>
       <div className={classes.title}>
@@ -81,46 +89,48 @@ const ReviewEdit: FC<Props> = ({ onCancel, ...props }) => {
         resource="users"
         toolbar={<ReviewEditToolbar />}
       >
-        {/* <CustomerReferenceField formClassName={classes.inlineField} /> */}
-        {/* <ProductReferenceField formClassName={classes.inlineField} /> */}
-        {/* <DateField source="date" formClassName={classes.inlineField} /> */}
-        {/* <StarRatingField formClassName={classes.inlineField} /> */}
-        {/* <TextInput source="status" rowsMax={15} fullWidth /> */}
         <>
           <Box display={{ xs: "block", sm: "flex" }}>
             <Box flex={1} mr={{ xs: 0, sm: "0.5em" }}>
-              <TextInput
-                source="id"
-                fullWidth
-                disabled={controllerProps.record.status === "3"}
-              />
-            </Box>
-            <Box flex={1} ml={{ xs: 0, sm: "0.5em" }}>
               <TextInput
                 source="name"
                 fullWidth
                 disabled={controllerProps.record.status === "3"}
               />
             </Box>
-          </Box>
-          <Box display={{ xs: "block", sm: "flex" }}>
-            <Box flex={1} mr={{ xs: 0, sm: "0.5em" }}>
+            <Box flex={1} ml={{ xs: 0, sm: "0.5em" }}>
               <TextInput
                 source="email"
                 fullWidth
                 disabled={controllerProps.record.status === "3"}
               />
             </Box>
+          </Box>
+          <Box display={{ xs: "block", sm: "flex" }}>
+            <Box flex={1} mr={{ xs: 0, sm: "0.5em" }}>
+              <SelectArrayInput
+                // label="Tags"
+                source="permissions"
+                choices={Object.keys(PermissionMap).map((key) => ({
+                  id: key,
+                  name: PermissionMap[key],
+                }))}
+                disabled={controllerProps.record.status === "3"}
+              />
+            </Box>
             <Box flex={1} ml={{ xs: 0, sm: "0.5em" }}>
-              <TextInput
-                source="role"
+              <SelectInput
                 fullWidth
+                source="role"
+                choices={[
+                  { id: "1", name: "SuperAdmin" },
+                  { id: "2", name: "User" },
+                ]}
                 disabled={controllerProps.record.status === "3"}
               />
             </Box>
           </Box>
         </>
-
         {/* <Box display={{ xs: "block", sm: "flex" }}>
           <Box flex={1} mr={{ xs: 0, sm: "0.5em" }}>
             <TextInput source="permissions" fullWidth />

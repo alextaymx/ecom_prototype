@@ -31,7 +31,6 @@ const PermissionsField = ({ source, record = {} }) => (
 PermissionsField.defaultProps = {
   addLabel: true,
 };
-
 const useListStyles = makeStyles({
   headerRow: {
     borderLeftColor: "white",
@@ -44,12 +43,6 @@ const useListStyles = makeStyles({
   rowCell: {
     padding: "6px 8px 6px 8px",
   },
-  //   permissions: {
-  //     maxWidth: "18em",
-  //     overflow: "scroll",
-  //     // textOverflow: "ellipsis",
-  //     whiteSpace: "nowrap",
-  //   },
 });
 
 export interface ReviewListDesktopProps extends DatagridProps {
@@ -61,7 +54,6 @@ const ReviewListDesktop: FC<ReviewListDesktopProps> = ({
   ...props
 }) => {
   const classes = useListStyles();
-  console.log(props);
   return (
     <Datagrid
       rowClick="edit"
@@ -82,7 +74,7 @@ const ReviewListDesktop: FC<ReviewListDesktopProps> = ({
       <TextField source="role" /> */}
       {/* <PermissionsField source="permissions" /> */}
       <CustomMapField source="status" />
-      <CustomMapField source="role" label="Role"/>
+      <CustomMapField source="role" label="Role" />
       <CustomMapField
         source="permissions"
         label="Permissions"

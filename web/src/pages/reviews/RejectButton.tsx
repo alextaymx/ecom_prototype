@@ -3,8 +3,9 @@ import { FC } from "react";
 import PropTypes from "prop-types";
 import Button from "@material-ui/core/Button";
 import ThumbDown from "@material-ui/icons/ThumbDown";
-import { useTranslate, useUpdate, useNotify, useRedirect } from "react-admin";
+import { useUpdate, useNotify, useRedirect } from "react-admin";
 import { User } from "../types";
+import CloseIcon from "@material-ui/icons/Close";
 
 /**
  * This custom button demonstrate using a custom action to update data
@@ -38,7 +39,7 @@ const RejectButton: FC<{ record: User }> = ({ record }) => {
       onClick={reject}
       disabled={loading}
     >
-      <ThumbDown
+      <CloseIcon
         color="primary"
         style={{ paddingRight: "0.5em", color: "red" }}
       />
