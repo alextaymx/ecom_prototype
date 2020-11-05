@@ -7,6 +7,7 @@ import {
   SimpleForm,
   DateField,
   EditProps,
+  TextField,
 } from "react-admin";
 import {
   IconButton,
@@ -20,9 +21,8 @@ import CloseIcon from "@material-ui/icons/Close";
 
 // import ProductReferenceField from '../products/ProductReferenceField';
 // import CustomerReferenceField from '../visitors/CustomerReferenceField';
-import StarRatingField from "./StarRatingField";
 import ReviewEditToolbar from "./ReviewEditToolbar";
-import { Review } from "../types";
+import { User } from "../types";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -55,10 +55,11 @@ interface Props extends EditProps {
 
 const ReviewEdit: FC<Props> = ({ onCancel, ...props }) => {
   const classes = useStyles();
-  const controllerProps = useEditController<Review>(props);
+  const controllerProps = useEditController<User>(props);
   if (!controllerProps.record) {
     return null;
   }
+  console.log(controllerProps);
   return (
     <div className={classes.root}>
       <div className={classes.title}>
@@ -85,22 +86,41 @@ const ReviewEdit: FC<Props> = ({ onCancel, ...props }) => {
         {/* <DateField source="date" formClassName={classes.inlineField} /> */}
         {/* <StarRatingField formClassName={classes.inlineField} /> */}
         {/* <TextInput source="status" rowsMax={15} fullWidth /> */}
-        <Box display={{ xs: "block", sm: "flex" }}>
-          <Box flex={1} mr={{ xs: 0, sm: "0.5em" }}>
-            <TextInput source="id" fullWidth />
+        <>
+          <Box display={{ xs: "block", sm: "flex" }}>
+            <Box flex={1} mr={{ xs: 0, sm: "0.5em" }}>
+              <TextInput
+                source="id"
+                fullWidth
+                disabled={controllerProps.record.status === "3"}
+              />
+            </Box>
+            <Box flex={1} ml={{ xs: 0, sm: "0.5em" }}>
+              <TextInput
+                source="name"
+                fullWidth
+                disabled={controllerProps.record.status === "3"}
+              />
+            </Box>
           </Box>
-          <Box flex={1} ml={{ xs: 0, sm: "0.5em" }}>
-            <TextInput source="name" fullWidth />
+          <Box display={{ xs: "block", sm: "flex" }}>
+            <Box flex={1} mr={{ xs: 0, sm: "0.5em" }}>
+              <TextInput
+                source="email"
+                fullWidth
+                disabled={controllerProps.record.status === "3"}
+              />
+            </Box>
+            <Box flex={1} ml={{ xs: 0, sm: "0.5em" }}>
+              <TextInput
+                source="role"
+                fullWidth
+                disabled={controllerProps.record.status === "3"}
+              />
+            </Box>
           </Box>
-        </Box>
-        <Box display={{ xs: "block", sm: "flex" }}>
-          <Box flex={1} mr={{ xs: 0, sm: "0.5em" }}>
-            <TextInput source="email" fullWidth />
-          </Box>
-          <Box flex={1} ml={{ xs: 0, sm: "0.5em" }}>
-            <TextInput source="role" fullWidth />
-          </Box>
-        </Box>
+        </>
+
         {/* <Box display={{ xs: "block", sm: "flex" }}>
           <Box flex={1} mr={{ xs: 0, sm: "0.5em" }}>
             <TextInput source="permissions" fullWidth />

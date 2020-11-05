@@ -72,13 +72,12 @@ declare global {
   }
 }
 
+export type UserStatus = "1" | "2" | "3";
 export interface User extends Record {
-  customer_id: Identifier;
-  product_id: Identifier;
-  id: number;
+  id: Identifier;
   name: string;
   email: string;
-  status: string;
+  status: UserStatus;
   role: string;
   permissions: string;
   createdAt: string;

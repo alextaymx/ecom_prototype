@@ -4,15 +4,33 @@ import {
   Identifier,
   Datagrid,
   DateField,
+  ArrayField,
+  SingleFieldList,
   TextField,
   DatagridProps,
+  EmailField,
 } from "react-admin";
 import { makeStyles } from "@material-ui/core/styles";
+import Chip from "@material-ui/core/Chip";
 
 // import ProductReferenceField from '../products/ProductReferenceField';
 // import CustomerReferenceField from '../visitors/CustomerReferenceField';
-import StarRatingField from "./StarRatingField";
 import rowStyle from "./rowStyle";
+import CustomMapField from "./CustomMapField";
+
+const PermissionsField = ({ source, record = {} }) => (
+  <>
+    {record[source] &&
+      record[source].map((item, idx) => (
+        //   <li key={idx}>{item}</li>
+        //   <Chip key={idx} label={item} />
+        <Chip key={idx} label={item} />
+      ))}
+  </>
+);
+PermissionsField.defaultProps = {
+  addLabel: true,
+};
 
 const useListStyles = makeStyles({
   headerRow: {
@@ -26,12 +44,12 @@ const useListStyles = makeStyles({
   rowCell: {
     padding: "6px 8px 6px 8px",
   },
-  comment: {
-    maxWidth: "18em",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
+  //   permissions: {
+  //     maxWidth: "18em",
+  //     overflow: "scroll",
+  //     // textOverflow: "ellipsis",
+  //     whiteSpace: "nowrap",
+  //   },
 });
 
 export interface ReviewListDesktopProps extends DatagridProps {
@@ -43,6 +61,7 @@ const ReviewListDesktop: FC<ReviewListDesktopProps> = ({
   ...props
 }) => {
   const classes = useListStyles();
+  console.log(props);
   return (
     <Datagrid
       rowClick="edit"
@@ -58,16 +77,24 @@ const ReviewListDesktop: FC<ReviewListDesktopProps> = ({
     >
       <TextField source="id" />
       <TextField source="name" />
-      <TextField source="email" />
-      <TextField source="status" />
-      <TextField source="role" />
-      <TextField source="permissions" cellClassName={classes.comment} />
-      <DateField source="createdAt" />
-      {/* <CustomerReferenceField link={false} /> */}
-      {/* <ProductReferenceField link={false} /> */}
-      {/* <StarRatingField size="small" /> */}
-      {/* <TextField source="comment" cellClassName={classes.comment} /> */}
-      {/* <TextField source="status" /> */}
+      <EmailField source="email" />
+      {/* <TextField source="status" />
+      <TextField source="role" /> */}
+      {/* <PermissionsField source="permissions" /> */}
+      <CustomMapField source="status" />
+      <CustomMapField source="role" label="Role"/>
+      <CustomMapField
+        source="permissions"
+        label="Permissions"
+        // cellClassName={classes.permissions}
+      />
+      {/* <ArrayField source="permissions">
+        <SingleFieldList>
+          <ChipField />
+        </SingleFieldList>
+      </ArrayField> */}
+      {/* <TextField source="permissions" cellClassName={classes.comment} /> */}
+      <TextField source="createdAt" />
     </Datagrid>
   );
 };

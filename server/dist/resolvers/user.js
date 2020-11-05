@@ -66,7 +66,7 @@ let UserResolver = class UserResolver {
         if (req.session.userId === user.id) {
             return user.email;
         }
-        return "";
+        return user.email;
     }
     changePassword(token, newPassword, { redis, req }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -214,29 +214,76 @@ let UserResolver = class UserResolver {
             resolve(true);
         }));
     }
-    allUsers(page, perPage, sortField, sortOrder, filter) {
+    allUsers() {
         return __awaiter(this, void 0, void 0, function* () {
-            const a = yield User_1.User.find();
-            console.log(a, "aaaaa");
-            return User_1.User.find();
+            const users = yield User_1.User.find();
+            return users;
         });
     }
     User(id) {
         return User_1.User.findOne(id);
     }
-    _allUsersMeta(page, perPage, sortField, sortOrder, filter) {
+    _allUsersMeta() {
         return __awaiter(this, void 0, void 0, function* () {
             const count = yield User_1.User.count();
             console.log("count", count);
             return { count };
         });
     }
-    updateUser(id, status, { req }) {
+    createUser(email, name, password, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = {
-                status,
-            };
+            const options = { email, name, password };
+            const errors = validateRegister_1.validateRegister(options);
+            if (errors) {
+                return { errors };
+            }
+            const hashedPassword = yield argon2_1.default.hash(options.password);
+            let user;
+            try {
+                const result = yield typeorm_1.getConnection()
+                    .createQueryBuilder()
+                    .insert()
+                    .into(User_1.User)
+                    .values({
+                    name: options.name,
+                    email: options.email,
+                    password: hashedPassword,
+                    status: constants_1.UserStatus.Pending,
+                    role: constants_1.Roles.User.id,
+                    permissions: constants_1.Roles.User.permissions,
+                })
+                    .returning("*")
+                    .execute();
+                user = result.raw[0];
+            }
+            catch (err) {
+                if (err.code === "23505") {
+                    return {
+                        errors: [
+                            {
+                                field: "username",
+                                message: "username already taken",
+                            },
+                        ],
+                    };
+                }
+            }
+            req.session.userId = user.id;
+            return { user };
+        });
+    }
+    updateUser(id, name, email, status, role) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = Object.assign(Object.assign(Object.assign(Object.assign({}, (name && { name })), (status && { status })), (email && { email })), (role && { role }));
             yield User_1.User.update(id, user);
+            return User_1.User.findOne(id);
+        });
+    }
+    deleteUser(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield User_1.User.update(id, {
+                status: "3",
+            });
             return User_1.User.findOne(id);
         });
     }
@@ -298,13 +345,8 @@ __decorate([
 ], UserResolver.prototype, "logout", null);
 __decorate([
     type_graphql_1.Query(() => [User_1.User]),
-    __param(0, type_graphql_1.Arg("page", () => type_graphql_1.Int, { nullable: true })),
-    __param(1, type_graphql_1.Arg("perPage", () => type_graphql_1.Int, { nullable: true })),
-    __param(2, type_graphql_1.Arg("sortField", () => String, { nullable: true })),
-    __param(3, type_graphql_1.Arg("sortOrder", () => String, { nullable: true })),
-    __param(4, type_graphql_1.Arg("filter", () => UsernamePasswordInput_1.UserFilter, { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String, String, UsernamePasswordInput_1.UserFilter]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "allUsers", null);
 __decorate([
@@ -316,24 +358,38 @@ __decorate([
 ], UserResolver.prototype, "User", null);
 __decorate([
     type_graphql_1.Query(() => ListMetadata_1.ListMetadata),
-    __param(0, type_graphql_1.Arg("page", () => type_graphql_1.Int, { nullable: true })),
-    __param(1, type_graphql_1.Arg("perPage", () => type_graphql_1.Int, { nullable: true })),
-    __param(2, type_graphql_1.Arg("sortField", () => String, { nullable: true })),
-    __param(3, type_graphql_1.Arg("sortOrder", () => String, { nullable: true })),
-    __param(4, type_graphql_1.Arg("filter", () => UsernamePasswordInput_1.UserFilter, { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String, String, UsernamePasswordInput_1.UserFilter]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "_allUsersMeta", null);
 __decorate([
+    type_graphql_1.Mutation(() => UserResponse),
+    __param(0, type_graphql_1.Arg("email", () => String)),
+    __param(1, type_graphql_1.Arg("name", () => String)),
+    __param(2, type_graphql_1.Arg("password", () => String)),
+    __param(3, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "createUser", null);
+__decorate([
     type_graphql_1.Mutation(() => User_1.User),
     __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
-    __param(1, type_graphql_1.Arg("status", () => String, { nullable: true })),
-    __param(2, type_graphql_1.Ctx()),
+    __param(1, type_graphql_1.Arg("name", () => String, { nullable: true })),
+    __param(2, type_graphql_1.Arg("email", () => String, { nullable: true })),
+    __param(3, type_graphql_1.Arg("status", () => String, { nullable: true })),
+    __param(4, type_graphql_1.Arg("role", () => String, { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String, Object]),
+    __metadata("design:paramtypes", [Number, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "updateUser", null);
+__decorate([
+    type_graphql_1.Mutation(() => User_1.User),
+    __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "deleteUser", null);
 UserResolver = __decorate([
     type_graphql_1.Resolver(User_1.User)
 ], UserResolver);

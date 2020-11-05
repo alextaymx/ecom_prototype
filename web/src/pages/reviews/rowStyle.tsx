@@ -4,9 +4,9 @@ import red from '@material-ui/core/colors/red';
 import { useTheme } from '@material-ui/core/styles';
 import { Identifier } from 'react-admin';
 
-import { Review } from './../types';
+import { User } from './../types';
 
-const rowStyle = (selectedRow?: Identifier) => (record: Review) => {
+const rowStyle = (selectedRow?: Identifier) => (record: User) => {
     const theme = useTheme();
     let style = {};
     if (!record) {
@@ -18,21 +18,21 @@ const rowStyle = (selectedRow?: Identifier) => (record: Review) => {
             backgroundColor: theme.palette.action.selected,
         };
     }
-    if (record.status === 'accepted')
+    if (record.status === '1')
         return {
             ...style,
             borderLeftColor: green[500],
             borderLeftWidth: 5,
             borderLeftStyle: 'solid',
         };
-    if (record.status === 'pending')
+    if (record.status === '2')
         return {
             ...style,
             borderLeftColor: orange[500],
             borderLeftWidth: 5,
             borderLeftStyle: 'solid',
         };
-    if (record.status === 'rejected')
+    if (record.status === '3')
         return {
             ...style,
             borderLeftColor: red[500],

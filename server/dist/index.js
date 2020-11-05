@@ -22,7 +22,6 @@ const express_session_1 = __importDefault(require("express-session"));
 const connect_redis_1 = __importDefault(require("connect-redis"));
 const cors_1 = __importDefault(require("cors"));
 const typeorm_1 = require("typeorm");
-const path_1 = __importDefault(require("path"));
 const User_1 = require("./entities/User");
 const user_1 = require("./resolvers/user");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -33,7 +32,6 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         password: "root",
         logging: true,
         synchronize: true,
-        migrations: [path_1.default.join(__dirname, "./migrations/*")],
         entities: [User_1.User],
     });
     yield conn.runMigrations();

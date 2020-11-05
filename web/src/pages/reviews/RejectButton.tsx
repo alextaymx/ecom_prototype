@@ -10,28 +10,22 @@ import { User } from "../types";
  * This custom button demonstrate using a custom action to update data
  */
 const RejectButton: FC<{ record: User }> = ({ record }) => {
-  const translate = useTranslate();
   const notify = useNotify();
   const redirectTo = useRedirect();
 
   const [reject, { loading }] = useUpdate(
     "users",
     record.id,
-    { status: "rejected" },
+    { id: record.id, status: "3" },
     record,
     {
       undoable: true,
       onSuccess: () => {
-        notify(
-          "resources.reviews.notification.rejected_success",
-          "info",
-          {},
-          true
-        );
-        redirectTo("/reviews");
+        notify("Rejected Success", "info", {}, true);
+        redirectTo("/users");
       },
       onFailure: () => {
-        notify("resources.reviews.notification.rejected_error", "warning");
+        notify("Rejected Error", "warning");
       },
     }
   );

@@ -10,7 +10,6 @@ import { User } from "./../types";
  * This custom button demonstrate using useUpdate to update data
  */
 const AcceptButton: FC<{ record: User }> = ({ record }) => {
-  const translate = useTranslate();
   const notify = useNotify();
   const redirectTo = useRedirect();
 

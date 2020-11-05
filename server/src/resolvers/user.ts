@@ -19,7 +19,7 @@ import {
   Roles,
   UserStatus,
 } from "../constants";
-import { UserFilter, UsernamePasswordInput } from "./UsernamePasswordInput";
+import { UsernamePasswordInput } from "./UsernamePasswordInput";
 import { validateRegister } from "../utils/validateRegister";
 import { sendEmail } from "../utils/sendEmail";
 import { v4 } from "uuid";
@@ -52,7 +52,8 @@ export class UserResolver {
       return user.email;
     }
     // current user wants to see someone elses email
-    return "";
+    // return "";
+    return user.email;
   }
 
   @Mutation(() => UserResponse)
@@ -260,16 +261,19 @@ export class UserResolver {
   }
 
   @Query(() => [User])
-  async allUsers(
-    @Arg("page", () => Int, { nullable: true }) page: number,
-    @Arg("perPage", () => Int, { nullable: true }) perPage: number,
-    @Arg("sortField", () => String, { nullable: true }) sortField: string,
-    @Arg("sortOrder", () => String, { nullable: true }) sortOrder: string,
-    @Arg("filter", () => UserFilter, { nullable: true }) filter: UserFilter
-  ): Promise<User[]> {
-    const a = await User.find();
-    console.log(a, "aaaaa");
-    return User.find();
+  async allUsers(): // @Arg("page", () => Int, { nullable: true }) page: number,
+  // @Arg("perPage", () => Int, { nullable: true }) perPage: number,
+  // @Arg("sortField", () => String, { nullable: true }) sortField: string,
+  // @Arg("sortOrder", () => String, { nullable: true }) sortOrder: string,
+  // @Arg("filter", () => UserFilter, { nullable: true }) filter: UserFilter
+  Promise<User[]> {
+    const users = await User.find();
+    // console.log(users, "aaaaa");
+    // return users.map((user) => ({
+    //   ...user,
+    //   permissions: user.permissions.map((permission) => ({ id: permission })),
+    // }));
+    return users;
   }
 
   @Query(() => User, { nullable: true })
@@ -278,31 +282,97 @@ export class UserResolver {
   }
 
   @Query(() => ListMetadata)
-  async _allUsersMeta(
-    @Arg("page", () => Int, { nullable: true }) page: number,
-    @Arg("perPage", () => Int, { nullable: true }) perPage: number,
-    @Arg("sortField", () => String, { nullable: true }) sortField: string,
-    @Arg("sortOrder", () => String, { nullable: true }) sortOrder: string,
-    @Arg("filter", () => UserFilter, { nullable: true }) filter: UserFilter
-  ): Promise<ListMetadata> {
+  async _allUsersMeta(): // @Arg("page", () => Int, { nullable: true }) page: number,
+  // @Arg("perPage", () => Int, { nullable: true }) perPage: number,
+  // @Arg("sortField", () => String, { nullable: true }) sortField: string,
+  // @Arg("sortOrder", () => String, { nullable: true }) sortOrder: string,
+  // @Arg("filter", () => UserFilter, { nullable: true }) filter: UserFilter
+  Promise<ListMetadata> {
     const count = await User.count();
     console.log("count", count);
     return { count };
   }
 
+  @Mutation(() => UserResponse)
+  async createUser(
+    @Arg("email", () => String) email: string,
+    @Arg("name", () => String) name: string,
+    @Arg("password", () => String) password: string,
+    @Ctx() { req }: MyContext
+  ): Promise<UserResponse> {
+    const options = { email, name, password };
+    const errors = validateRegister(options);
+    if (errors) {
+      return { errors };
+    }
+    const hashedPassword = await argon2.hash(options.password);
+    let user;
+    try {
+      // User.create({}).save()
+      const result = await getConnection()
+        .createQueryBuilder()
+        .insert()
+        .into(User)
+        .values({
+          name: options.name,
+          email: options.email,
+          password: hashedPassword,
+          status: UserStatus.Pending,
+          role: Roles.User.id,
+          permissions: Roles.User.permissions,
+        })
+        .returning("*")
+        .execute();
+      user = result.raw[0];
+    } catch (err) {
+      //|| err.detail.includes("already exists")) {
+      // duplicate username error
+      if (err.code === "23505") {
+        return {
+          errors: [
+            {
+              field: "username",
+              message: "username already taken",
+            },
+          ],
+        };
+      }
+    }
+
+    // store user id session
+    // this will set a cookie on the user
+    // keep them logged in
+    req.session.userId = user.id;
+
+    return { user };
+  }
+
   @Mutation(() => User)
   async updateUser(
     @Arg("id", () => Int) id: number,
-    // @Arg("name", () => String, { nullable: true }) name: string,
-    // @Arg("email", () => String, { nullable: true }) email: string,
+    @Arg("name", () => String, { nullable: true }) name: string,
+    @Arg("email", () => String, { nullable: true }) email: string,
     @Arg("status", () => String, { nullable: true }) status: string,
-    // @Arg("role", () => String, { nullable: true }) role: string,
-    @Ctx() { req }: MyContext
+    @Arg("role", () => String, { nullable: true }) role: string
+    // @Ctx() { req }: MyContext
   ): Promise<User | undefined> {
     const user = {
-      status,
+      ...(name && { name }),
+      ...(status && { status }),
+      ...(email && { email }),
+      ...(role && { role }),
     };
     await User.update(id, user);
+    return User.findOne(id);
+  }
+
+  @Mutation(() => User)
+  async deleteUser(
+    @Arg("id", () => Int) id: number
+  ): Promise<User | undefined> {
+    await User.update(id, {
+      status: "3",
+    });
     return User.findOne(id);
   }
 }
