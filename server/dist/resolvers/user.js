@@ -225,7 +225,7 @@ let UserResolver = class UserResolver {
     }
     allUsers() {
         return __awaiter(this, void 0, void 0, function* () {
-            const users = yield User_1.User.find();
+            const users = yield User_1.User.find({});
             return users;
         });
     }
@@ -234,17 +234,17 @@ let UserResolver = class UserResolver {
     }
     _allUsersMeta() {
         return __awaiter(this, void 0, void 0, function* () {
-            const count = yield User_1.User.count();
+            const count = yield User_1.User.count({});
             console.log("count", count);
             return { count };
         });
     }
-    createUser(email, name, password, { req }) {
+    createUser(email, name, password) {
         return __awaiter(this, void 0, void 0, function* () {
             const options = { email, name, password };
             const errors = validateRegister_1.validateRegister(options);
             if (errors) {
-                return { errors };
+                throw new Error(errors[0].message);
             }
             const hashedPassword = yield argon2_1.default.hash(options.password);
             let user;
@@ -267,18 +267,11 @@ let UserResolver = class UserResolver {
             }
             catch (err) {
                 if (err.code === "23505") {
-                    return {
-                        errors: [
-                            {
-                                field: "username",
-                                message: "username already taken",
-                            },
-                        ],
-                    };
+                    throw new Error("username already taken");
                 }
+                throw new Error("failed to create user");
             }
-            req.session.userId = user.id;
-            return { user };
+            return user;
         });
     }
     updateUser(id, name, email, status, role, permissions) {
@@ -295,6 +288,39 @@ let UserResolver = class UserResolver {
                 status: "3",
             });
             return User_1.User.findOne(id);
+        });
+    }
+    approveUser(email, token, { redis }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!email && !token) {
+                return false;
+            }
+            else if (email) {
+                const user = yield User_1.User.findOne({ where: { email } });
+                if (!user) {
+                    return false;
+                }
+                const newToken = uuid_1.v4();
+                yield redis.set(constants_1.APPROVE_USER_PREFIX + newToken, user.id, "ex", 1000 * 60 * 60 * 24 * 3);
+                yield sendEmail_1.sendEmail(email, `<a href="http://localhost:3000/#/users/verification/${newToken}">Click here to verify your email</a>`);
+            }
+            else if (token) {
+                const key = constants_1.APPROVE_USER_PREFIX + token;
+                const userId = yield redis.get(key);
+                if (!userId) {
+                    return false;
+                }
+                const userIdNum = parseInt(userId);
+                const user = yield User_1.User.findOne(userIdNum);
+                if (!user) {
+                    return false;
+                }
+                yield User_1.User.update({ id: userIdNum }, {
+                    status: "1",
+                });
+                yield redis.del(key);
+            }
+            return true;
         });
     }
 };
@@ -375,14 +401,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "_allUsersMeta", null);
 __decorate([
-    type_graphql_1.Mutation(() => UserResponse),
+    type_graphql_1.Mutation(() => User_1.User),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),
     __param(0, type_graphql_1.Arg("email", () => String)),
     __param(1, type_graphql_1.Arg("name", () => String)),
     __param(2, type_graphql_1.Arg("password", () => String)),
-    __param(3, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, Object]),
+    __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "createUser", null);
 __decorate([
@@ -406,6 +431,15 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "deleteUser", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg("email", () => String, { nullable: true })),
+    __param(1, type_graphql_1.Arg("token", () => String, { nullable: true })),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "approveUser", null);
 UserResolver = __decorate([
     type_graphql_1.Resolver(User_1.User)
 ], UserResolver);

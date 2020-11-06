@@ -22,7 +22,7 @@ import CloseIcon from "@material-ui/icons/Close";
 
 // import ProductReferenceField from '../products/ProductReferenceField';
 // import CustomerReferenceField from '../visitors/CustomerReferenceField';
-import ReviewEditToolbar from "./ReviewEditToolbar";
+import UserEditToolbar from "./UserEditToolbar";
 import { User } from "../types";
 import { PermissionMap } from "../../constants";
 
@@ -55,7 +55,7 @@ interface Props extends EditProps {
   onCancel: () => void;
 }
 
-const ReviewEdit: FC<Props> = ({ onCancel, ...props }) => {
+const UserEdit: FC<Props> = ({ onCancel, ...props }) => {
   const classes = useStyles();
   const controllerProps = useEditController<User>(props);
   if (!controllerProps.record) {
@@ -87,7 +87,7 @@ const ReviewEdit: FC<Props> = ({ onCancel, ...props }) => {
         version={controllerProps.version}
         redirect="list"
         resource="users"
-        toolbar={<ReviewEditToolbar />}
+        toolbar={<UserEditToolbar />}
       >
         <>
           <Box display={{ xs: "block", sm: "flex" }}>
@@ -151,4 +151,4 @@ const ReviewEdit: FC<Props> = ({ onCancel, ...props }) => {
   );
 };
 
-export default ReviewEdit;
+export default UserEdit;

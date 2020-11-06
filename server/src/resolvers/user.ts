@@ -15,6 +15,7 @@ import { MyContext } from "../types";
 import { User } from "../entities/User";
 import argon2 from "argon2";
 import {
+  APPROVE_USER_PREFIX,
   COOKIE_NAME,
   FORGET_PASSWORD_PREFIX,
   Roles,
@@ -276,12 +277,13 @@ export class UserResolver {
   // @Arg("sortOrder", () => String, { nullable: true }) sortOrder: string,
   // @Arg("filter", () => UserFilter, { nullable: true }) filter: UserFilter
   Promise<User[]> {
-    const users = await User.find();
+    const users = await User.find({});
     // console.log(users, "aaaaa");
     // return users.map((user) => ({
     //   ...user,
     //   permissions: user.permissions.map((permission) => ({ id: permission })),
     // }));
+    // console.log(users);
     return users;
   }
 
@@ -298,26 +300,25 @@ export class UserResolver {
   // @Arg("sortOrder", () => String, { nullable: true }) sortOrder: string,
   // @Arg("filter", () => UserFilter, { nullable: true }) filter: UserFilter
   Promise<ListMetadata> {
-    const count = await User.count();
+    const count = await User.count({});
     console.log("count", count);
     return { count };
   }
 
-  @Mutation(() => UserResponse)
+  @Mutation(() => User)
   @UseMiddleware(isAuth)
   async createUser(
     @Arg("email", () => String) email: string,
     @Arg("name", () => String) name: string,
-    @Arg("password", () => String) password: string,
-    @Ctx() { req }: MyContext
-  ): Promise<UserResponse> {
+    @Arg("password", () => String) password: string
+  ): Promise<User> {
     const options = { email, name, password };
     const errors = validateRegister(options);
     if (errors) {
-      return { errors };
+      throw new Error(errors[0].message);
     }
     const hashedPassword = await argon2.hash(options.password);
-    let user;
+    let user: User;
     try {
       // User.create({}).save()
       const result = await getConnection()
@@ -339,23 +340,17 @@ export class UserResolver {
       //|| err.detail.includes("already exists")) {
       // duplicate username error
       if (err.code === "23505") {
-        return {
-          errors: [
-            {
-              field: "username",
-              message: "username already taken",
-            },
-          ],
-        };
+        throw new Error("username already taken");
       }
+      throw new Error("failed to create user");
     }
 
     // store user id session
     // this will set a cookie on the user
     // keep them logged in
-    req.session.userId = user.id;
+    // req.session.userId = user.id;
 
-    return { user };
+    return user;
   }
 
   @Mutation(() => User)
@@ -391,5 +386,52 @@ export class UserResolver {
       status: "3",
     });
     return User.findOne(id);
+  }
+
+  @Mutation(() => Boolean)
+  async approveUser(
+    @Arg("email", () => String, { nullable: true }) email: string,
+    @Arg("token", () => String, { nullable: true }) token: string,
+    @Ctx() { redis }: MyContext
+  ) {
+    if (!email && !token) {
+      return false;
+    } else if (email) {
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        // the email is not in the db
+        return false;
+      }
+      const newToken = v4();
+      await redis.set(
+        APPROVE_USER_PREFIX + newToken,
+        user.id,
+        "ex",
+        1000 * 60 * 60 * 24 * 3
+      ); // 3 days
+      await sendEmail(
+        email,
+        `<a href="http://localhost:3000/#/users/verification/${newToken}">Click here to verify your email</a>`
+      );
+    } else if (token) {
+      const key = APPROVE_USER_PREFIX + token;
+      const userId = await redis.get(key);
+      if (!userId) {
+        return false;
+      }
+      const userIdNum = parseInt(userId);
+      const user = await User.findOne(userIdNum);
+      if (!user) {
+        return false;
+      }
+      await User.update(
+        { id: userIdNum },
+        {
+          status: "1",
+        }
+      );
+      await redis.del(key);
+    }
+    return true;
   }
 }

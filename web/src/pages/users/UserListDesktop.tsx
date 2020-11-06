@@ -4,8 +4,6 @@ import {
   Identifier,
   Datagrid,
   DateField,
-  ArrayField,
-  SingleFieldList,
   TextField,
   DatagridProps,
   EmailField,
@@ -49,7 +47,7 @@ export interface ReviewListDesktopProps extends DatagridProps {
   selectedRow?: Identifier;
 }
 
-const ReviewListDesktop: FC<ReviewListDesktopProps> = ({
+const UserListDesktop: FC<ReviewListDesktopProps> = ({
   selectedRow,
   ...props
 }) => {
@@ -86,9 +84,9 @@ const ReviewListDesktop: FC<ReviewListDesktopProps> = ({
         </SingleFieldList>
       </ArrayField> */}
       {/* <TextField source="permissions" cellClassName={classes.comment} /> */}
-      <TextField source="createdAt" />
+      <DateField source="createdAt" />
     </Datagrid>
   );
 };
 
-export default ReviewListDesktop;
+export default UserListDesktop;

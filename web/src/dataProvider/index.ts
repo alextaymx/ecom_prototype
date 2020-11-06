@@ -1,4 +1,4 @@
-export default (type: string) => {
+const dataProvider = (type: string) => {
   switch (type) {
     case "graphql":
       return import("./graphql").then((factory) => factory.default());
@@ -6,3 +6,4 @@ export default (type: string) => {
       return import("./graphql").then((provider) => provider.default);
   }
 };
+export default dataProvider;

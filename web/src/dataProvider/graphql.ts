@@ -1,5 +1,5 @@
 import { ApolloQueryResult } from "apollo-client";
-import buildApolloClient, {
+import buildGraphQLProvider, {
   buildQuery as buildQueryFactory,
 } from "ra-data-graphql-simple";
 import { DELETE, LegacyDataProvider } from "react-admin";
@@ -9,26 +9,16 @@ import {
   IntrospectionSchema,
   IntrospectionType,
 } from "graphql";
+import { client } from "./client";
+import { ACTIONS } from "./actions";
 
 const getGqlResource = (resource: string) => {
   switch (resource) {
-    case "customers":
-      return "Customer";
-
-    case "categories":
-      return "Category";
-
-    case "commands":
-      return "Command";
+    case "users":
+      return "User";
 
     case "products":
       return "Product";
-
-    case "reviews":
-      return "Review";
-
-    case "invoices":
-      return "Invoice";
 
     default:
       throw new Error(`Unknown resource ${resource}`);
@@ -50,33 +40,49 @@ const customBuildQuery = (
   introspectionResults: IntrospectionResults
 ): LegacyDataProvider => {
   const buildQuery = buildQueryFactory(introspectionResults);
-
+  console.log(introspectionResults);
   return (type, resource, params) => {
-    if (type === DELETE) {
-      return {
-        query: gql`mutation remove${resource}($id: ID!) {
-                    remove${resource}(id: $id)
-                }`,
-        variables: { id: params.id },
-        parseResponse: ({ data }: ApolloQueryResult<any>) => {
-          if (data[`remove${resource}`]) {
-            return { data: { id: params.id } };
-          }
-
-          throw new Error(`Could not delete ${resource}`);
-        },
-      };
+    console.log(type, resource, params, "alex");
+    switch (type) {
+      case ACTIONS.approveUser:
+        return {
+          query: gql`
+            mutation approveUser($token: String, $email: String) {
+              approveUser(token: $token, email: $email)
+            }
+          `,
+          variables: params,
+          parseResponse: ({ data }: ApolloQueryResult<any>) => {
+            if (data["approveUser"]) {
+              return { data: params };
+            } else {
+              return Promise.reject(new Error(`Could not approve ${resource}`));
+            }
+          },
+        };
+      case DELETE: {
+        return {
+          query: gql`mutation remove${resource}($id: ID!) {
+                        remove${resource}(id: $id)
+                    }`,
+          variables: { id: params.id },
+          parseResponse: ({ data }: ApolloQueryResult<any>) => {
+            if (data[`remove${resource}`]) {
+              return { data: { id: params.id } };
+            }
+            throw new Error(`Could not delete ${resource}`);
+          },
+        };
+      }
+      default:
+        return buildQuery(type, resource, params);
     }
-
-    return buildQuery(type, resource, params);
   };
 };
 
-export default () => {
-  return buildApolloClient({
-    clientOptions: {
-      uri: "http://localhost:4000/graphql",
-    },
+const graphqlProvider = () => {
+  return buildGraphQLProvider({
+    client,
     introspection: {
       operationNames: {
         [DELETE]: (resource: IntrospectionType) => `remove${resource.name}`,
@@ -92,3 +98,4 @@ export default () => {
     }
   );
 };
+export default graphqlProvider;

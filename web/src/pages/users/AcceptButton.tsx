@@ -3,9 +3,10 @@ import { FC } from "react";
 import PropTypes from "prop-types";
 import Button from "@material-ui/core/Button";
 import ThumbUp from "@material-ui/icons/ThumbUp";
-import { useUpdate, useNotify, useRedirect } from "react-admin";
-import { User } from "./../types";
+import { useUpdate, useNotify, useRedirect, useMutation } from "react-admin";
+import { User } from "../types";
 import CheckIcon from "@material-ui/icons/Check";
+import { ACTIONS } from "../../dataProvider/actions";
 
 /**
  * This custom button demonstrate using useUpdate to update data
@@ -13,6 +14,22 @@ import CheckIcon from "@material-ui/icons/Check";
 const AcceptButton: FC<{ record: User }> = ({ record }) => {
   const notify = useNotify();
   const redirectTo = useRedirect();
+  const [approveUser, { loading: ApproveLoading }] = useMutation(
+    {
+      type: ACTIONS.approveUser,
+      resource: "users",
+      payload: { email: record.email },
+    },
+    {
+      action: ACTIONS.approveUser,
+      onSuccess: ({ data }) => {
+        console.log(data, "acceptbutton");
+        redirectTo("/users");
+        notify("User approved success", "info", {}, true);
+      },
+      onFailure: (error) => notify(`Error: ${error.message}`, "warning"),
+    }
+  );
 
   const [approve, { loading }] = useUpdate(
     "users",
@@ -35,8 +52,8 @@ const AcceptButton: FC<{ record: User }> = ({ record }) => {
       variant="outlined"
       color="primary"
       size="small"
-      onClick={approve}
-      disabled={loading}
+      onClick={approveUser}
+      disabled={ApproveLoading}
     >
       <CheckIcon
         color="primary"

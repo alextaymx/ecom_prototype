@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ReviewEditToolbar: FC<ToolbarProps<User>> = ({
+const UserEditToolbar: FC<ToolbarProps<User>> = ({
   basePath,
   handleSubmitWithRedirect,
   invalid,
@@ -118,4 +118,4 @@ const ReviewEditToolbar: FC<ToolbarProps<User>> = ({
   );
 };
 
-export default ReviewEditToolbar;
+export default UserEditToolbar;

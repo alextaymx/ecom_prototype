@@ -4,7 +4,7 @@ import red from '@material-ui/core/colors/red';
 import { useTheme } from '@material-ui/core/styles';
 import { Identifier } from 'react-admin';
 
-import { User } from './../types';
+import { User } from '../types';
 
 const rowStyle = (selectedRow?: Identifier) => (record: User) => {
     const theme = useTheme();

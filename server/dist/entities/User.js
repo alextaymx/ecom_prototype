@@ -49,13 +49,13 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "permissions", void 0);
 __decorate([
-    type_graphql_1.Field(() => String),
-    typeorm_1.CreateDateColumn(),
+    type_graphql_1.Field(() => Date),
+    typeorm_1.CreateDateColumn({ type: "timestamp" }),
     __metadata("design:type", Date)
 ], User.prototype, "createdAt", void 0);
 __decorate([
-    type_graphql_1.Field(() => String),
-    typeorm_1.UpdateDateColumn(),
+    type_graphql_1.Field(() => Date),
+    typeorm_1.UpdateDateColumn({ type: "timestamp" }),
     __metadata("design:type", Date)
 ], User.prototype, "updatedAt", void 0);
 User = __decorate([

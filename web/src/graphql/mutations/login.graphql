@@ -8,6 +8,8 @@ mutation Login($usernameOrEmail: String!, $password: String!) {
       id
       name
       email
+      permissions
+      role
     }
     token
   }

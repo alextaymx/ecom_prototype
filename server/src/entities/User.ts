@@ -38,11 +38,11 @@ export class User extends BaseEntity {
   @Column("text", { array: true })
   permissions!: string[];
 
-  @Field(() => String)
-  @CreateDateColumn()
+  @Field(() => Date)
+  @CreateDateColumn({ type: "timestamp" })
   createdAt!: Date;
 
-  @Field(() => String)
-  @UpdateDateColumn()
+  @Field(() => Date)
+  @UpdateDateColumn({ type: "timestamp" })
   updatedAt!: Date;
 }

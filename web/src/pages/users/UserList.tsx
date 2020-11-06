@@ -17,9 +17,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import BulkAcceptButton from "./BulkAcceptButton";
 import BulkRejectButton from "./BulkRejectButton";
 // import ReviewListMobile from "./ReviewListMobile";
-import ReviewListDesktop from "./ReviewListDesktop";
-import ReviewFilter from "./ReviewFilter";
-import ReviewEdit from "./ReviewEdit";
+import UserListDesktop from "./UserListDesktop";
+import UserFilter from "./UserFilter";
+import UserEdit from "./UserEdit";
 
 const ReviewsBulkActionButtons = (props: BulkActionProps) => (
   <Fragment>
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ReviewList: FC<ListProps> = (props) => {
+const UserList: FC<ListProps> = (props) => {
   const classes = useStyles();
   const isXSmall = useMediaQuery<Theme>((theme) =>
     theme.breakpoints.down("xs")
@@ -84,7 +84,7 @@ const ReviewList: FC<ListProps> = (props) => {
               >
                 {isXSmall ? (
                   //   <ReviewListMobile />
-                  <ReviewListDesktop
+                  <UserListDesktop
                     selectedRow={
                       isMatch
                         ? parseInt((match as any).params.id, 10)
@@ -92,7 +92,7 @@ const ReviewList: FC<ListProps> = (props) => {
                     }
                   />
                 ) : (
-                  <ReviewListDesktop
+                  <UserListDesktop
                     selectedRow={
                       isMatch
                         ? parseInt((match as any).params.id, 10)
@@ -112,7 +112,7 @@ const ReviewList: FC<ListProps> = (props) => {
               >
                 {/* To avoid any errors if the route does not match, we don't render at all the component in this case */}
                 {isMatch ? (
-                  <ReviewEdit
+                  <UserEdit
                     id={(match as any).params.id}
                     onCancel={handleClose}
                     {...props}
@@ -127,4 +127,4 @@ const ReviewList: FC<ListProps> = (props) => {
   );
 };
 
-export default ReviewList;
+export default UserList;

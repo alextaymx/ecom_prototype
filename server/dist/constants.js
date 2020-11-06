@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserStatus = exports.Roles = exports.Permissions = exports.FORGET_PASSWORD_PREFIX = exports.COOKIE_NAME = exports.__prod__ = void 0;
+exports.UserStatus = exports.Roles = exports.Permissions = exports.APPROVE_USER_PREFIX = exports.FORGET_PASSWORD_PREFIX = exports.COOKIE_NAME = exports.__prod__ = void 0;
 exports.__prod__ = process.env.NODE_ENV === "production";
 exports.COOKIE_NAME = "qid";
 exports.FORGET_PASSWORD_PREFIX = "forget-password:";
+exports.APPROVE_USER_PREFIX = "approve-user:";
 exports.Permissions = {
     Create_User: "1",
     Update_User: "2",

@@ -9,6 +9,8 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
+  DateTime: any;
 };
 
 export type Query = {
@@ -32,9 +34,10 @@ export type User = {
   status: Scalars['String'];
   role: Scalars['String'];
   permissions: Array<Scalars['String']>;
-  createdAt: Scalars['String'];
-  updatedAt: Scalars['String'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
 };
+
 
 export type ListMetadata = {
   __typename?: 'ListMetadata';
@@ -48,7 +51,7 @@ export type Mutation = {
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
-  createUser: UserResponse;
+  createUser: User;
   updateUser: User;
   deleteUser: User;
 };
@@ -84,6 +87,7 @@ export type MutationCreateUserArgs = {
 
 
 export type MutationUpdateUserArgs = {
+  permissions?: Maybe<Array<Scalars['String']>>;
   role?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
@@ -131,7 +135,7 @@ export type LoginMutation = (
       & Pick<FieldError, 'field' | 'message'>
     )>>, user?: Maybe<(
       { __typename?: 'User' }
-      & Pick<User, 'id' | 'name' | 'email'>
+      & Pick<User, 'id' | 'name' | 'email' | 'permissions' | 'role'>
     )> }
   ) }
 );
@@ -167,6 +171,8 @@ export const LoginDocument = gql`
       id
       name
       email
+      permissions
+      role
     }
     token
   }
