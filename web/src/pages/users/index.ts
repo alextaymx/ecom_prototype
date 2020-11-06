@@ -5,7 +5,9 @@ import UserList from "./UserList";
 const resource = {
   icon: PeopleIcon,
   list: UserList,
-  create: UserCreate,
+  create: JSON.parse(localStorage.getItem("user")).permissions.includes("1")
+    ? UserCreate
+    : null,
 };
 
 export default resource;

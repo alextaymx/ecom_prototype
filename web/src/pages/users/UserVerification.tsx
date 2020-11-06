@@ -88,7 +88,7 @@ const UserVerification = (props) => {
 
   const [verificationStatus, setVerificationStatus] = useState(false);
   // console.log("alex", props.match.params);
-  console.log(dataProvider);
+  // console.log(dataProvider);
   const [approveUser, { loading }] = useMutation(
     {
       type: ACTIONS.approveUser,
@@ -98,7 +98,6 @@ const UserVerification = (props) => {
     {
       action: ACTIONS.approveUser,
       onSuccess: ({ data }) => {
-        console.log(data, "acceptbutton");
         setVerificationStatus(true);
         notify("User approved success", "info", {}, true);
       },
@@ -106,7 +105,6 @@ const UserVerification = (props) => {
     }
   );
   useEffect(() => {
-    console.log("alex", props.match.params);
     approveUser();
   }, []);
 

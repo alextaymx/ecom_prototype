@@ -40,9 +40,9 @@ const customBuildQuery = (
   introspectionResults: IntrospectionResults
 ): LegacyDataProvider => {
   const buildQuery = buildQueryFactory(introspectionResults);
-  console.log(introspectionResults);
+  // console.log(introspectionResults);
   return (type, resource, params) => {
-    console.log(type, resource, params, "alex");
+    // console.log(type, resource, params, "alex");
     switch (type) {
       case ACTIONS.approveUser:
         return {

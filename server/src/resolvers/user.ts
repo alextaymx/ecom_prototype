@@ -10,7 +10,6 @@ import {
   Root,
   Int,
   UseMiddleware,
-  Authorized,
 } from "type-graphql";
 import { MyContext } from "../types";
 import { User } from "../entities/User";
@@ -250,7 +249,7 @@ export class UserResolver {
 
     req.session.userId = user.id;
     const token = createToken(user.id, password);
-    console.log({ user });
+    // console.log({ user });
     return {
       user,
       token,
@@ -275,7 +274,6 @@ export class UserResolver {
 
   @Query(() => [User])
   @UseMiddleware(isAuth)
-  @Authorized("getUsers")
   async allUsers(): // @Arg("page", () => Int, { nullable: true }) page: number,
   // @Arg("perPage", () => Int, { nullable: true }) perPage: number,
   // @Arg("sortField", () => String, { nullable: true }) sortField: string,

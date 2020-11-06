@@ -61,7 +61,6 @@ const UserEdit: FC<Props> = ({ onCancel, permissions, ...props }) => {
   if (!controllerProps.record) {
     return null;
   }
-  console.log(permissions);
   return (
     <div className={classes.root}>
       <div className={classes.title}>

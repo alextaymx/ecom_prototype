@@ -23,7 +23,7 @@ const AcceptButton: FC<{ record: User }> = ({ record }) => {
     {
       action: ACTIONS.approveUser,
       onSuccess: ({ data }) => {
-        console.log(data, "acceptbutton");
+        // console.log(data, "acceptbutton");
         redirectTo("/users");
         notify("User approved success", "info", {}, true);
       },

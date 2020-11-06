@@ -46,7 +46,7 @@ const authProvider: AuthProvider = {
     if (localStorage.getItem("user")) {
       return Promise.resolve();
     } else {
-      console.log(params, "error from checkAuth");
+      console.log("error from checkAuth", params);
       return Promise.reject();
     }
   },

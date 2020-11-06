@@ -9,6 +9,7 @@ import { client } from "./dataProvider/client";
 import customRoutes from "./routes";
 import Login from "./pages/Login";
 import Users from "./pages/users";
+import UserCreate from "./pages/users/UserCreate";
 
 function App() {
   const [dataProvider, setDataProvider] = useState<DataProvider>();
@@ -35,22 +36,24 @@ function App() {
         loginPage={Login}
         customRoutes={customRoutes}
       >
-        {(permissions) => {
-          console.log(permissions);
+        <Resource name="users" {...Users} />
+        {/* {(permissions) => {
           return [
             // Restrict access to the edit and remove views to admin only
             <Resource
               name="users"
+              {...Users}
+              {...{
+                ...Users,
+                ...(!permissions.includes("1") && { create: null }),
+              }}
               {...(permissions.includes("1")
                 ? { ...Users }
                 : { ...Users, create: null })}
             />,
             // Only include the categories resource for admin users
-            permissions.includes("6") ? (
-              <Resource name="users" {...Users} />
-            ) : null,
           ];
-        }}
+        }} */}
         {/* <Resource name="users" {...Users} /> */}
       </Admin>
     </ApolloProvider>

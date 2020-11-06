@@ -104,18 +104,8 @@ const Register = () => {
             name: auth.username,
           },
         },
-        //   update: (cache, { data }) => {
-        //     cache.writeQuery<MeQuery>({
-        //       query: MeDocument,
-        //       data: {
-        //         __typename: "Query",
-        //         me: data?.login.user,
-        //       },
-        //     });
-        //     cache.evict({ fieldName: "posts:{}" });
-        //   },
       });
-      console.log(response);
+      // console.log(response);
       if (response.data?.register.errors) {
         const error = response.data?.register.errors[0];
         notify(

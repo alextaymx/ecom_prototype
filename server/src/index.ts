@@ -11,7 +11,6 @@ import { createConnection } from "typeorm";
 import { User } from "./entities/User";
 import { UserResolver } from "./resolvers/user";
 import path from "path";
-import { customAuthChecker } from "./middleware/isAuth";
 
 const main = async () => {
   const conn = await createConnection({
@@ -24,7 +23,7 @@ const main = async () => {
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [User],
   });
-  // await conn.runMigrations();
+  await conn.runMigrations();
 
   // await Post.delete({});
 
@@ -61,7 +60,6 @@ const main = async () => {
     schema: await buildSchema({
       resolvers: [UserResolver],
       validate: false,
-      authChecker: customAuthChecker,
     }),
     context: ({ req, res }) => ({ req, res, redis }),
   });

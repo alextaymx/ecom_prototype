@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.customAuthChecker = exports.isAuth = void 0;
+exports.isAuth = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = require("../entities/User");
 exports.isAuth = ({ context }, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -27,15 +27,10 @@ exports.isAuth = ({ context }, next) => __awaiter(void 0, void 0, void 0, functi
                 if (user == null || user.status !== "1") {
                     throw new Error("user does not exist");
                 }
-                console.log(user);
                 context.res.locals.permissions = user.permissions;
             }
         }));
     }
     return next();
 });
-exports.customAuthChecker = ({ args, context }, roles) => {
-    console.log(args, context.res.locals, roles, "alllllllllllllllllllllllllllllllll");
-    return true;
-};
 //# sourceMappingURL=isAuth.js.map

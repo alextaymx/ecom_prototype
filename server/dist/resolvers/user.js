@@ -207,7 +207,6 @@ let UserResolver = class UserResolver {
             }
             req.session.userId = user.id;
             const token = createToken_1.createToken(user.id, password);
-            console.log({ user });
             return {
                 user,
                 token,
@@ -392,7 +391,6 @@ __decorate([
 __decorate([
     type_graphql_1.Query(() => [User_1.User]),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),
-    type_graphql_1.Authorized("getUsers"),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
