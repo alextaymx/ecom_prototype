@@ -55,7 +55,6 @@ const UserListDesktop: FC<ReviewListDesktopProps> = ({
 }) => {
   const classes = useListStyles();
   const { permissions } = usePermissions();
-  console.log(permissions);
   return (
     <Datagrid
       rowClick={

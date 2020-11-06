@@ -3,12 +3,13 @@ import { Fragment, FC } from "react";
 import MuiToolbar from "@material-ui/core/Toolbar";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { SaveButton, DeleteButton, ToolbarProps } from "react-admin";
+import { SaveButton, DeleteButton, ToolbarProps, usePermissions } from "react-admin";
 import AcceptButton from "./AcceptButton";
 import RejectButton from "./RejectButton";
 import { User } from "../types";
 import { useUpdate, useNotify, useRedirect } from "react-admin";
 import Button from "@material-ui/core/Button";
+import { PermissionConstant } from "../../constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,7 +35,7 @@ const UserEditToolbar: FC<ToolbarProps<User>> = ({
   const classes = useStyles();
   const notify = useNotify();
   const redirectTo = useRedirect();
-
+  const { permissions } = usePermissions();
   const [deactivateUser, { loading: deactivateLoading }] = useUpdate(
     "users",
     record.id,
@@ -98,16 +99,19 @@ const UserEditToolbar: FC<ToolbarProps<User>> = ({
           </Button>
         )}
 
-        {record && record.status === "1" && (
-          <Button
-            style={{ color: "#f44336" }}
-            variant="outlined"
-            onClick={deactivateUser}
-            disabled={deactivateLoading}
-          >
-            Deactivate User
-          </Button>
-        )}
+        {permissions &&
+          permissions.includes(PermissionConstant.Delete_User) &&
+          record &&
+          record.status === "1" && (
+            <Button
+              style={{ color: "#f44336" }}
+              variant="outlined"
+              onClick={deactivateUser}
+              disabled={deactivateLoading}
+            >
+              Deactivate User
+            </Button>
+          )}
         {/* <DeleteButton
             basePath={basePath}
             record={record}

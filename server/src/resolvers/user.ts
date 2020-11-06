@@ -10,6 +10,7 @@ import {
   Root,
   Int,
   UseMiddleware,
+  Authorized,
 } from "type-graphql";
 import { MyContext } from "../types";
 import { User } from "../entities/User";
@@ -18,6 +19,7 @@ import {
   APPROVE_USER_PREFIX,
   COOKIE_NAME,
   FORGET_PASSWORD_PREFIX,
+  Permissions,
   Roles,
   UserStatus,
 } from "../constants";
@@ -29,6 +31,8 @@ import { getConnection } from "typeorm";
 import { ListMetadata } from "../entities/ListMetadata";
 import { isAuth } from "../middleware/isAuth";
 import { createToken } from "../utils/createToken";
+import { validatePermission } from "../utils/validatePermission";
+import { ForbiddenError } from "apollo-server-express";
 
 @ObjectType()
 class FieldError {
@@ -271,6 +275,7 @@ export class UserResolver {
 
   @Query(() => [User])
   @UseMiddleware(isAuth)
+  @Authorized("getUsers")
   async allUsers(): // @Arg("page", () => Int, { nullable: true }) page: number,
   // @Arg("perPage", () => Int, { nullable: true }) perPage: number,
   // @Arg("sortField", () => String, { nullable: true }) sortField: string,
@@ -310,8 +315,12 @@ export class UserResolver {
   async createUser(
     @Arg("email", () => String) email: string,
     @Arg("name", () => String) name: string,
-    @Arg("password", () => String) password: string
-  ): Promise<User> {
+    @Arg("password", () => String) password: string,
+    @Ctx() { res }: MyContext
+  ): Promise<User | ForbiddenError> {
+    if (!validatePermission(res.locals.permissions, Permissions.Create_User)) {
+      return new ForbiddenError("You dont have the permission");
+    }
     const options = { email, name, password };
     const errors = validateRegister(options);
     if (errors) {
@@ -362,10 +371,12 @@ export class UserResolver {
     @Arg("status", () => String, { nullable: true }) status: string,
     @Arg("role", () => String, { nullable: true }) role: string,
     @Arg("permissions", () => [String], { nullable: true })
-    permissions: [string]
-    // @Ctx() { req }: MyContext
-  ): Promise<User | undefined> {
-    console.log("alex", permissions);
+    permissions: [string],
+    @Ctx() { res }: MyContext
+  ): Promise<User | ForbiddenError | undefined> {
+    if (!validatePermission(res.locals.permissions, Permissions.Update_User)) {
+      return new ForbiddenError("You dont have the permission");
+    }
     const user = {
       ...(name && { name }),
       ...(status && { status }),
@@ -380,8 +391,12 @@ export class UserResolver {
   @Mutation(() => User)
   @UseMiddleware(isAuth)
   async deleteUser(
-    @Arg("id", () => Int) id: number
-  ): Promise<User | undefined> {
+    @Arg("id", () => Int) id: number,
+    @Ctx() { res }: MyContext
+  ): Promise<User | ForbiddenError | undefined> {
+    if (!validatePermission(res.locals.permissions, Permissions.Update_User)) {
+      return new ForbiddenError("You dont have the permission");
+    }
     await User.update(id, {
       status: "3",
     });

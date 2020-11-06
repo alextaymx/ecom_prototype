@@ -37,6 +37,8 @@ const typeorm_1 = require("typeorm");
 const ListMetadata_1 = require("../entities/ListMetadata");
 const isAuth_1 = require("../middleware/isAuth");
 const createToken_1 = require("../utils/createToken");
+const validatePermission_1 = require("../utils/validatePermission");
+const apollo_server_express_1 = require("apollo-server-express");
 let FieldError = class FieldError {
 };
 __decorate([
@@ -239,8 +241,11 @@ let UserResolver = class UserResolver {
             return { count };
         });
     }
-    createUser(email, name, password) {
+    createUser(email, name, password, { res }) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!validatePermission_1.validatePermission(res.locals.permissions, constants_1.Permissions.Create_User)) {
+                return new apollo_server_express_1.ForbiddenError("You dont have the permission");
+            }
             const options = { email, name, password };
             const errors = validateRegister_1.validateRegister(options);
             if (errors) {
@@ -274,16 +279,21 @@ let UserResolver = class UserResolver {
             return user;
         });
     }
-    updateUser(id, name, email, status, role, permissions) {
+    updateUser(id, name, email, status, role, permissions, { res }) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("alex", permissions);
+            if (!validatePermission_1.validatePermission(res.locals.permissions, constants_1.Permissions.Update_User)) {
+                return new apollo_server_express_1.ForbiddenError("You dont have the permission");
+            }
             const user = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, (name && { name })), (status && { status })), (email && { email })), (role && { role })), (permissions && { permissions }));
             yield User_1.User.update(id, user);
             return User_1.User.findOne(id);
         });
     }
-    deleteUser(id) {
+    deleteUser(id, { res }) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!validatePermission_1.validatePermission(res.locals.permissions, constants_1.Permissions.Update_User)) {
+                return new apollo_server_express_1.ForbiddenError("You dont have the permission");
+            }
             yield User_1.User.update(id, {
                 status: "3",
             });
@@ -382,6 +392,7 @@ __decorate([
 __decorate([
     type_graphql_1.Query(() => [User_1.User]),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),
+    type_graphql_1.Authorized("getUsers"),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
@@ -406,8 +417,9 @@ __decorate([
     __param(0, type_graphql_1.Arg("email", () => String)),
     __param(1, type_graphql_1.Arg("name", () => String)),
     __param(2, type_graphql_1.Arg("password", () => String)),
+    __param(3, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "createUser", null);
 __decorate([
@@ -419,16 +431,18 @@ __decorate([
     __param(3, type_graphql_1.Arg("status", () => String, { nullable: true })),
     __param(4, type_graphql_1.Arg("role", () => String, { nullable: true })),
     __param(5, type_graphql_1.Arg("permissions", () => [String], { nullable: true })),
+    __param(6, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String, String, String, String, Array]),
+    __metadata("design:paramtypes", [Number, String, String, String, String, Array, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "updateUser", null);
 __decorate([
     type_graphql_1.Mutation(() => User_1.User),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),
     __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "deleteUser", null);
 __decorate([

@@ -1,0 +1,1 @@
+{"version":3,"file":"validatePermission.js","sourceRoot":"","sources":["../../src/utils/validatePermission.ts"],"names":[],"mappings":";;;AAAa,QAAA,kBAAkB,GAAG,CAChC,WAAqB,EACrB,SAAiB,EACR,EAAE;IACX,IAAI,WAAW,IAAI,WAAW,CAAC,QAAQ,CAAC,SAAS,CAAC,EAAE;QAClD,OAAO,IAAI,CAAC;KACb;IAED,OAAO,KAAK,CAAC;AACf,CAAC,CAAC"}

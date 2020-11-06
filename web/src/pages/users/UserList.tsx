@@ -59,7 +59,6 @@ const UserList: FC<ListProps> = ({ permissions, ...props }) => {
   const handleClose = useCallback(() => {
     history.push("/users");
   }, [history]);
-  console.log(permissions);
   return (
     <div className={classes.root}>
       <Route path="/users/:id">
@@ -68,6 +67,7 @@ const UserList: FC<ListProps> = ({ permissions, ...props }) => {
             match &&
             match.params &&
             match.params.id !== "create" &&
+            permissions &&
             permissions.includes(PermissionConstant.Update_User)
           );
 

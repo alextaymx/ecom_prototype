@@ -3,9 +3,10 @@ import { FC } from "react";
 import PropTypes from "prop-types";
 import Button from "@material-ui/core/Button";
 import ThumbDown from "@material-ui/icons/ThumbDown";
-import { useUpdate, useNotify, useRedirect } from "react-admin";
+import { useUpdate, useNotify, useRedirect, usePermissions } from "react-admin";
 import { User } from "../types";
 import CloseIcon from "@material-ui/icons/Close";
+import { PermissionConstant } from "../../constants";
 
 /**
  * This custom button demonstrate using a custom action to update data
@@ -13,7 +14,7 @@ import CloseIcon from "@material-ui/icons/Close";
 const RejectButton: FC<{ record: User }> = ({ record }) => {
   const notify = useNotify();
   const redirectTo = useRedirect();
-
+  const { permissions } = usePermissions();
   const [reject, { loading }] = useUpdate(
     "users",
     record.id,
@@ -31,7 +32,10 @@ const RejectButton: FC<{ record: User }> = ({ record }) => {
     }
   );
 
-  return record && record.status === "2" ? (
+  return permissions &&
+    permissions.includes(PermissionConstant.Delete_User) &&
+    record &&
+    record.status === "2" ? (
     <Button
       variant="outlined"
       color="primary"

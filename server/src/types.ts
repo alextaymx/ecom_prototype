@@ -5,4 +5,5 @@ export type MyContext = {
   req: Request & { session: Express.Session };
   redis: Redis;
   res: Response;
+  operation: string;
 };
