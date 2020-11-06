@@ -20,6 +20,7 @@ import BulkRejectButton from "./BulkRejectButton";
 import UserListDesktop from "./UserListDesktop";
 import UserFilter from "./UserFilter";
 import UserEdit from "./UserEdit";
+import { PermissionConstant } from "../../constants";
 
 const ReviewsBulkActionButtons = (props: BulkActionProps) => (
   <Fragment>
@@ -48,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const UserList: FC<ListProps> = (props) => {
+const UserList: FC<ListProps> = ({ permissions, ...props }) => {
   const classes = useStyles();
   const isXSmall = useMediaQuery<Theme>((theme) =>
     theme.breakpoints.down("xs")
@@ -58,7 +59,7 @@ const UserList: FC<ListProps> = (props) => {
   const handleClose = useCallback(() => {
     history.push("/users");
   }, [history]);
-
+  console.log(permissions);
   return (
     <div className={classes.root}>
       <Route path="/users/:id">
@@ -66,7 +67,8 @@ const UserList: FC<ListProps> = (props) => {
           const isMatch = !!(
             match &&
             match.params &&
-            match.params.id !== "create"
+            match.params.id !== "create" &&
+            permissions.includes(PermissionConstant.Update_User)
           );
 
           return (
@@ -110,7 +112,6 @@ const UserList: FC<ListProps> = (props) => {
                   paper: classes.drawerPaper,
                 }}
               >
-                {/* To avoid any errors if the route does not match, we don't render at all the component in this case */}
                 {isMatch ? (
                   <UserEdit
                     id={(match as any).params.id}

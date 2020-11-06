@@ -50,7 +50,13 @@ const authProvider: AuthProvider = {
       return Promise.reject();
     }
   },
-  getPermissions: () => Promise.reject("Unknown method"),
+  getPermissions: () => {
+    const permissions = JSON.parse(localStorage.getItem("user")).permissions;
+    if (permissions) {
+      return Promise.resolve(permissions);
+    }
+    return Promise.reject("Unknown method");
+  },
   getIdentity: () => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user) {

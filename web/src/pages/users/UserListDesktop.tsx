@@ -7,6 +7,7 @@ import {
   TextField,
   DatagridProps,
   EmailField,
+  usePermissions,
 } from "react-admin";
 import { makeStyles } from "@material-ui/core/styles";
 import Chip from "@material-ui/core/Chip";
@@ -15,6 +16,7 @@ import Chip from "@material-ui/core/Chip";
 // import CustomerReferenceField from '../visitors/CustomerReferenceField';
 import rowStyle from "./rowStyle";
 import CustomMapField from "./CustomMapField";
+import { PermissionConstant } from "../../constants";
 
 const PermissionsField = ({ source, record = {} }) => (
   <>
@@ -52,9 +54,15 @@ const UserListDesktop: FC<ReviewListDesktopProps> = ({
   ...props
 }) => {
   const classes = useListStyles();
+  const { permissions } = usePermissions();
+  console.log(permissions);
   return (
     <Datagrid
-      rowClick="edit"
+      rowClick={
+        permissions && permissions.includes(PermissionConstant.Update_User)
+          ? "edit"
+          : ""
+      }
       // @ts-ignore
       rowStyle={rowStyle(selectedRow)}
       classes={{

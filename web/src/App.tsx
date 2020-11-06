@@ -35,7 +35,23 @@ function App() {
         loginPage={Login}
         customRoutes={customRoutes}
       >
-        <Resource name="users" {...Users} />
+        {(permissions) => {
+          console.log(permissions);
+          return [
+            // Restrict access to the edit and remove views to admin only
+            <Resource
+              name="users"
+              {...(permissions.includes("1")
+                ? { ...Users }
+                : { ...Users, create: null })}
+            />,
+            // Only include the categories resource for admin users
+            permissions.includes("6") ? (
+              <Resource name="users" {...Users} />
+            ) : null,
+          ];
+        }}
+        {/* <Resource name="users" {...Users} /> */}
       </Admin>
     </ApolloProvider>
   );

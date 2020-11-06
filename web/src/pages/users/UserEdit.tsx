@@ -55,19 +55,13 @@ interface Props extends EditProps {
   onCancel: () => void;
 }
 
-const UserEdit: FC<Props> = ({ onCancel, ...props }) => {
+const UserEdit: FC<Props> = ({ onCancel, permissions, ...props }) => {
   const classes = useStyles();
   const controllerProps = useEditController<User>(props);
   if (!controllerProps.record) {
     return null;
   }
-  console.log(
-    Object.keys(PermissionMap).map((key) => ({
-      id: parseInt(key) + 20,
-      permissionKey: key,
-      name: PermissionMap[key],
-    }))
-  );
+  console.log(permissions);
   return (
     <div className={classes.root}>
       <div className={classes.title}>
