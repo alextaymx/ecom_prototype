@@ -184,12 +184,12 @@ let UserResolver = class UserResolver {
             const user = yield User_1.User.findOne(usernameOrEmail.includes("@")
                 ? { where: { email: usernameOrEmail } }
                 : { where: { name: usernameOrEmail } });
-            if (!user) {
+            if (!user || user.status !== "1") {
                 return {
                     errors: [
                         {
                             field: "usernameOrEmail",
-                            message: "that username doesn't exist",
+                            message: "user doesn't exist",
                         },
                     ],
                 };
@@ -224,20 +224,51 @@ let UserResolver = class UserResolver {
             resolve(true);
         }));
     }
-    allUsers() {
+    allUsers(page, perPage, sortField, sortOrder, filter) {
         return __awaiter(this, void 0, void 0, function* () {
-            const users = yield User_1.User.find({});
-            return users;
+            const users = yield typeorm_1.getConnection()
+                .getRepository(User_1.User)
+                .createQueryBuilder("user");
+            if (filter.q && filter.status) {
+                users
+                    .where("user.name LIKE :name", { name: `%${filter.q}%` })
+                    .andWhere("user.status = :status", { status: filter.status });
+            }
+            else if (filter.q) {
+                users.where("user.name LIKE :name", { name: `%${filter.q}%` });
+            }
+            else if (filter.status) {
+                users.where("user.status = :status", { status: filter.status });
+            }
+            return users
+                .orderBy(`user.${sortField}`, sortOrder)
+                .skip(page * perPage)
+                .take(perPage)
+                .getMany();
         });
     }
     User(id) {
         return User_1.User.findOne(id);
     }
-    _allUsersMeta() {
+    _allUsersMeta(page, perPage, sortField, sortOrder, filter) {
         return __awaiter(this, void 0, void 0, function* () {
-            const count = yield User_1.User.count({});
-            console.log("count", count);
-            return { count };
+            console.log(filter);
+            const count = yield typeorm_1.getConnection()
+                .getRepository(User_1.User)
+                .createQueryBuilder("user")
+                .select("COUNT(*)", "count");
+            if (filter.q && filter.status) {
+                count
+                    .where("user.name LIKE :name", { name: `%${filter.q}%` })
+                    .andWhere("user.status = :status", { status: filter.status });
+            }
+            else if (filter.q) {
+                count.where("user.name LIKE :name", { name: `%${filter.q}%` });
+            }
+            else if (filter.status) {
+                count.where("user.status = :status", { status: filter.status });
+            }
+            return count.getRawOne();
         });
     }
     createUser(email, name, password, { res }) {
@@ -391,8 +422,13 @@ __decorate([
 __decorate([
     type_graphql_1.Query(() => [User_1.User]),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),
+    __param(0, type_graphql_1.Arg("page", () => type_graphql_1.Int, { nullable: true })),
+    __param(1, type_graphql_1.Arg("perPage", () => type_graphql_1.Int, { nullable: true })),
+    __param(2, type_graphql_1.Arg("sortField", () => String, { nullable: true })),
+    __param(3, type_graphql_1.Arg("sortOrder", () => String, { nullable: true })),
+    __param(4, type_graphql_1.Arg("filter", () => UsernamePasswordInput_1.UserFilter, { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Number, Number, String, String, UsernamePasswordInput_1.UserFilter]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "allUsers", null);
 __decorate([
@@ -405,8 +441,13 @@ __decorate([
 __decorate([
     type_graphql_1.Query(() => ListMetadata_1.ListMetadata),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),
+    __param(0, type_graphql_1.Arg("page", () => type_graphql_1.Int, { nullable: true })),
+    __param(1, type_graphql_1.Arg("perPage", () => type_graphql_1.Int, { nullable: true })),
+    __param(2, type_graphql_1.Arg("sortField", () => String, { nullable: true })),
+    __param(3, type_graphql_1.Arg("sortOrder", () => String, { nullable: true })),
+    __param(4, type_graphql_1.Arg("filter", () => UsernamePasswordInput_1.UserFilter, { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Number, Number, String, String, UsernamePasswordInput_1.UserFilter]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "_allUsersMeta", null);
 __decorate([

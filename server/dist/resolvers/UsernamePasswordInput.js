@@ -34,6 +34,10 @@ let UserFilter = class UserFilter {
 __decorate([
     type_graphql_1.Field({ nullable: true }),
     __metadata("design:type", String)
+], UserFilter.prototype, "q", void 0);
+__decorate([
+    type_graphql_1.Field({ nullable: true }),
+    __metadata("design:type", String)
 ], UserFilter.prototype, "id", void 0);
 __decorate([
     type_graphql_1.Field({ nullable: true }),
@@ -42,11 +46,19 @@ __decorate([
 __decorate([
     type_graphql_1.Field({ nullable: true }),
     __metadata("design:type", String)
-], UserFilter.prototype, "password", void 0);
+], UserFilter.prototype, "email", void 0);
 __decorate([
     type_graphql_1.Field({ nullable: true }),
-    __metadata("design:type", Boolean)
-], UserFilter.prototype, "is_published", void 0);
+    __metadata("design:type", String)
+], UserFilter.prototype, "status", void 0);
+__decorate([
+    type_graphql_1.Field({ nullable: true }),
+    __metadata("design:type", String)
+], UserFilter.prototype, "role", void 0);
+__decorate([
+    type_graphql_1.Field({ nullable: true }),
+    __metadata("design:type", Date)
+], UserFilter.prototype, "createdAt", void 0);
 UserFilter = __decorate([
     type_graphql_1.InputType()
 ], UserFilter);

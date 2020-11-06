@@ -80,9 +80,9 @@ const UserList: FC<ListProps> = ({ permissions, ...props }) => {
                 })}
                 title="List of users"
                 // bulkActionButtons={<ReviewsBulkActionButtons />}
-                // filters={<ReviewFilter />}
-                // perPage={25}
-                // sort={{ field: "date", order: "DESC" }}
+                filters={<UserFilter />}
+                perPage={25}
+                sort={{ field: "createdAt", order: "DESC" }}
               >
                 {isXSmall ? (
                   //   <ReviewListMobile />

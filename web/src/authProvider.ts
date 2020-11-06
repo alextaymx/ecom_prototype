@@ -51,7 +51,8 @@ const authProvider: AuthProvider = {
     }
   },
   getPermissions: () => {
-    const permissions = JSON.parse(localStorage.getItem("user")).permissions;
+    const user = JSON.parse(localStorage.getItem("user"));
+    const permissions = user ? user.permissions : null;
     if (permissions) {
       return Promise.resolve(permissions);
     }

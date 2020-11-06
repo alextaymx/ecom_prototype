@@ -118,7 +118,7 @@ const Register = () => {
         );
       } else if (response.data?.register.user) {
         localStorage.setItem("username", response.data?.register.user.name);
-        notify("Registered ! Please confirm your email ! ");
+        notify("Registered ! Please wait for your verification email ! ");
         history.push("/login");
       }
     } catch (error) {

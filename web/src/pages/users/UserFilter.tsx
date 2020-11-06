@@ -24,13 +24,13 @@ const UserFilter: FC<Omit<FilterProps, "children">> = (props) => {
       <SelectInput
         source="status"
         choices={[
-          { id: "accepted", name: "Accepted" },
-          { id: "pending", name: "Pending" },
-          { id: "rejected", name: "Rejected" },
+          { id: "1", name: "Active" },
+          { id: "2", name: "Pending" },
+          { id: "3", name: "Inactive" },
         ]}
         className={classes.status}
       />
-      <ReferenceInput source="customer_id" reference="customers">
+      {/* <ReferenceInput source="customer_id" reference="customers">
         <AutocompleteInput
           optionText={(choice?: User) =>
             choice?.id // the empty choice is { id: '' }
@@ -38,12 +38,12 @@ const UserFilter: FC<Omit<FilterProps, "children">> = (props) => {
               : ""
           }
         />
-      </ReferenceInput>
-      <ReferenceInput source="product_id" reference="products">
+      </ReferenceInput> */}
+      {/* <ReferenceInput source="product_id" reference="products">
         <AutocompleteInput optionText="reference" />
-      </ReferenceInput>
-      <DateInput source="date_gte" />
-      <DateInput source="date_lte" />
+      </ReferenceInput> */}
+      <DateInput source="createdAt" />
+      {/* <DateInput source="date_lte" /> */}
     </Filter>
   );
 };

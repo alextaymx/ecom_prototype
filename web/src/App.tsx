@@ -10,6 +10,7 @@ import customRoutes from "./routes";
 import Login from "./pages/Login";
 import Users from "./pages/users";
 import UserCreate from "./pages/users/UserCreate";
+import { PermissionConstant } from "./constants";
 
 function App() {
   const [dataProvider, setDataProvider] = useState<DataProvider>();
@@ -36,24 +37,29 @@ function App() {
         loginPage={Login}
         customRoutes={customRoutes}
       >
-        <Resource name="users" {...Users} />
-        {/* {(permissions) => {
+        {(permissions) => {
           return [
             // Restrict access to the edit and remove views to admin only
             <Resource
               name="users"
-              {...Users}
-              {...{
-                ...Users,
-                ...(!permissions.includes("1") && { create: null }),
-              }}
-              {...(permissions.includes("1")
+              {...(permissions.includes(PermissionConstant.Create_User)
                 ? { ...Users }
                 : { ...Users, create: null })}
             />,
+            // <Resource
+            //   name="users"
+            //   {...Users}
+            //   {...{
+            //     ...Users,
+            //     ...(!permissions.includes("1") && { create: null }),
+            //   }}
+            //   {...(permissions.includes("1")
+            //     ? { ...Users }
+            //     : { ...Users, create: null })}
+            // />,
             // Only include the categories resource for admin users
           ];
-        }} */}
+        }}
         {/* <Resource name="users" {...Users} /> */}
       </Admin>
     </ApolloProvider>

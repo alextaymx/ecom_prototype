@@ -22,7 +22,7 @@ import {
   Roles,
   UserStatus,
 } from "../constants";
-import { UsernamePasswordInput } from "./UsernamePasswordInput";
+import { UserFilter, UsernamePasswordInput } from "./UsernamePasswordInput";
 import { validateRegister } from "../utils/validateRegister";
 import { sendEmail } from "../utils/sendEmail";
 import { v4 } from "uuid";
@@ -225,12 +225,12 @@ export class UserResolver {
         ? { where: { email: usernameOrEmail } }
         : { where: { name: usernameOrEmail } }
     );
-    if (!user) {
+    if (!user || user.status !== "1") {
       return {
         errors: [
           {
             field: "usernameOrEmail",
-            message: "that username doesn't exist",
+            message: "user doesn't exist",
           },
         ],
       };
@@ -266,7 +266,6 @@ export class UserResolver {
           resolve(false);
           return;
         }
-
         resolve(true);
       })
     );
@@ -274,20 +273,38 @@ export class UserResolver {
 
   @Query(() => [User])
   @UseMiddleware(isAuth)
-  async allUsers(): // @Arg("page", () => Int, { nullable: true }) page: number,
+  async allUsers(
+    @Arg("page", () => Int, { nullable: true }) page: number,
+    @Arg("perPage", () => Int, { nullable: true }) perPage: number,
+    @Arg("sortField", () => String, { nullable: true }) sortField: string,
+    @Arg("sortOrder", () => String, { nullable: true }) sortOrder: string,
+    @Arg("filter", () => UserFilter, { nullable: true }) filter: UserFilter
+  ): // @Arg("page", () => Int, { nullable: true }) page: number,
   // @Arg("perPage", () => Int, { nullable: true }) perPage: number,
   // @Arg("sortField", () => String, { nullable: true }) sortField: string,
   // @Arg("sortOrder", () => String, { nullable: true }) sortOrder: string,
   // @Arg("filter", () => UserFilter, { nullable: true }) filter: UserFilter
   Promise<User[]> {
-    const users = await User.find({});
+    // const users = await User.find({});
+    const users = await getConnection()
+      .getRepository(User)
+      .createQueryBuilder("user");
+    if (filter.q && filter.status) {
+      users
+        .where("user.name LIKE :name", { name: `%${filter.q}%` })
+        .andWhere("user.status = :status", { status: filter.status });
+    } else if (filter.q) {
+      users.where("user.name LIKE :name", { name: `%${filter.q}%` });
+    } else if (filter.status) {
+      users.where("user.status = :status", { status: filter.status });
+    }
+
     // console.log(users, "aaaaa");
-    // return users.map((user) => ({
-    //   ...user,
-    //   permissions: user.permissions.map((permission) => ({ id: permission })),
-    // }));
-    // console.log(users);
-    return users;
+    return users
+      .orderBy(`user.${sortField}`, sortOrder as any)
+      .skip(page * perPage)
+      .take(perPage)
+      .getMany();
   }
 
   @Query(() => User, { nullable: true })
@@ -297,15 +314,32 @@ export class UserResolver {
 
   @Query(() => ListMetadata)
   @UseMiddleware(isAuth)
-  async _allUsersMeta(): // @Arg("page", () => Int, { nullable: true }) page: number,
-  // @Arg("perPage", () => Int, { nullable: true }) perPage: number,
-  // @Arg("sortField", () => String, { nullable: true }) sortField: string,
-  // @Arg("sortOrder", () => String, { nullable: true }) sortOrder: string,
-  // @Arg("filter", () => UserFilter, { nullable: true }) filter: UserFilter
-  Promise<ListMetadata> {
-    const count = await User.count({});
-    console.log("count", count);
-    return { count };
+  async _allUsersMeta(
+    @Arg("page", () => Int, { nullable: true }) page: number,
+    @Arg("perPage", () => Int, { nullable: true }) perPage: number,
+    @Arg("sortField", () => String, { nullable: true }) sortField: string,
+    @Arg("sortOrder", () => String, { nullable: true }) sortOrder: string,
+    @Arg("filter", () => UserFilter, { nullable: true }) filter: UserFilter
+  ): Promise<ListMetadata> {
+    console.log(filter);
+    // const count = await User.count({});
+    const count = await getConnection()
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .select("COUNT(*)", "count");
+    if (filter.q && filter.status) {
+      count
+        .where("user.name LIKE :name", { name: `%${filter.q}%` })
+        .andWhere("user.status = :status", { status: filter.status });
+    } else if (filter.q) {
+      count.where("user.name LIKE :name", { name: `%${filter.q}%` });
+    } else if (filter.status) {
+      count.where("user.status = :status", { status: filter.status });
+    }
+    // .where("user.name = :name", { name: 1 })
+    // count.getRawOne();
+    // console.log("count", count);
+    return count.getRawOne();
   }
 
   @Mutation(() => User)

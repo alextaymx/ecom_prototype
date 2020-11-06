@@ -12,11 +12,17 @@ export class UsernamePasswordInput {
 @InputType()
 export class UserFilter {
   @Field({ nullable: true })
+  q: string;
+  @Field({ nullable: true })
   id: string;
   @Field({ nullable: true })
   name: string;
   @Field({ nullable: true })
-  password: string;
+  email: string;
   @Field({ nullable: true })
-  is_published: boolean;
+  status: string;
+  @Field({ nullable: true })
+  role: string;
+  @Field({ nullable: true })
+  createdAt: Date;
 }
